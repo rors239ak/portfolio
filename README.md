@@ -13,6 +13,9 @@ Pythonで作成したテキストベースのゲームです。
 - Python 3.13（依存ライブラリなし、標準ライブラリのみ使用）
 - OS: 任意（Docker利用で環境差異なし）
 
+## 実行方法
+-　c_main.pyから実行お願いします。
+
 ## Dockerでの実行方法
 ```bash
 docker build -t battle-game .
