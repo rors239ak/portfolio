@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>会員登録</title>
+</head>
+<body>
+  <h1>会員登録</h1>
+
+  {% if form.errors %}
+    <p style="color:red;">入力に問題があります。以下のエラーを確認してください。</p>
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ form.as_p }}
+    <button type="submit">登録</button>
+  </form>
+
+  <p><a href="{% url 'login' %}">ログイン</a> | <a href="{% url 'index' %}">トップへ戻る</a></p>
+</body>
+</html>
