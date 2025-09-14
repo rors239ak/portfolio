@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>おためしEC</title>
+</head>
+<body>
+  <a href="{% url 'index' %}"><h1>おためしEC</h1></a>
+  <h3>商品検索</h3>
+  <!-- 検索ボックス作成 -->
+  <form method="get" action="">
+  <input type="text" name="q" placeholder="商品名・説明で検索" value="{{ q|default:'' }}">
+  <button type="submit">検索</button>
+</form>
+<!-- 該当の検索結果があった場合 -->
+{% if q %}
+<p>検索: "{{ q }}" — {{ products.count }} 件</p>
+<ul>
+  {% for product in products %}
+    <li>{{ product.name }} - ¥{{ product.price }}<br>{{ product.description }}</li>
+  <!-- 該当の検索結果がない場合 -->
+  {% empty %}
+    <li>該当する商品はありません。</li>
+  {% endfor %}
+</ul>
+{% endif %}
+<a href="{% url 'product_list' %}">商品一覧へ</a>
+</body>
+</html>
