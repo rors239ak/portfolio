@@ -17,10 +17,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),# 管理ページ
     path('EC/', include('EC.urls')),  # ECアプリのURL
     path("accounts/login/",auth_views.LoginView.as_view(template_name="EC/login.html"),name="login",), # ログイン機能
 ]
+
+if settings.DEBUG:
+    # 開発サーバ(runserver)で /media/ 以下のURLをローカルの MEDIA_ROOT から配信する設定。
+    # DEBUG=True のときだけ有効。 本番では nginx 等の静的サーバで配信するのでここは無効にすること。
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

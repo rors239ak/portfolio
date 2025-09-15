@@ -7,7 +7,11 @@
 </head>
 <body>
   <a href="{% url 'index' %}"><h1>おためしEC</h1></a>
-  <p><a href="{% url 'login' %}">ログイン</a> | <a href="{% url 'signup' %}">会員登録</a></p>
+  <p>
+    <a href="{% url 'login' %}">ログイン</a> |
+    <a href="{% url 'signup' %}">会員登録</a>
+  </p>
+
   <h3>商品検索</h3>
   <!-- 検索ボックス作成 -->
   <form method="get" action="">
@@ -16,16 +20,25 @@
 </form>
 <!-- 該当の検索結果があった場合 -->
 {% if q %}
-<p>検索: "{{ q }}" — {{ products.count }} 件</p>
-<ul>
-  {% for product in products %}
-    <li>{{ product.name }} - ¥{{ product.price }}<br>{{ product.description }}</li>
-  <!-- 該当の検索結果がない場合 -->
-  {% empty %}
-    <li>該当する商品はありません。</li>
-  {% endfor %}
-</ul>
+  <p>検索: "{{ q }}" — {{ products.count }} 件</p>
+  <ul>
+    {% for product in products %}
+      <li>
+        <strong>{{ product.name }}</strong> - ¥{{ product.price }}<br>
+        {% if product.category %}
+          カテゴリ: {{ product.category.name }}<br>
+        {% endif %}
+        {% if product.photo %}
+          <img src="{{ product.photo.url }}" alt="{{ product.name }}" style="max-width:200px; display:block; margin:4px 0;">
+        {% endif %}
+        <div>{{ product.description }}</div>
+      </li>
+    {% empty %}
+      <li>該当する商品はありません。</li>
+    {% endfor %}
+  </ul>
 {% endif %}
-<a href="{% url 'product_list' %}">商品一覧へ</a>
+
+  <p><a href="{% url 'product_list' %}">商品一覧へ</a></p>
 </body>
 </html>
