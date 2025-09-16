@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="stylesheet" href="{% static 'EC/style.css' %}">
 </head>
-<body>
+<body class="auth-page">  <!-- ここを login と同じにする -->
   <div class="container">
     <h1>会員登録</h1>
 
@@ -53,6 +53,7 @@
       <div class="actions">
         <button type="submit" class="btn">登録</button>
         <a href="{% url 'login' %}" class="btn secondary" style="text-decoration:none;display:inline-flex;align-items:center;">ログインへ</a>
+        <a href="{% url 'index' %}" class="btn secondary" style="text-decoration:none;display:inline-flex;align-items:center;">トップへ戻る</a>
       </div>
     </form>
   </div>

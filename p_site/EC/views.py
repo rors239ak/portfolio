@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.db.models import Q, Max
+from django.core.paginator import Paginator
 from .models import Product, Category
 from .forms import ProductForm, SignupForm
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -17,41 +18,60 @@ def index(request):
     price_min = request.GET.get('price_min', '').strip()
     price_max = request.GET.get('price_max', '').strip()
 
-    products = Product.objects.all().order_by('-created_at')
+    products_qs = Product.objects.all().order_by('-created_at')
 
     if q:
-        products = products.filter(Q(name__icontains=q) | Q(description__icontains=q))
+        products_qs = products_qs.filter(Q(name__icontains=q) | Q(description__icontains=q))
 
     if category_id:
         try:
-            products = products.filter(category_id=int(category_id))
+            products_qs = products_qs.filter(category_id=int(category_id))
         except ValueError:
             pass
 
     try:
         if price_min != '':
-            products = products.filter(price__gte=int(price_min))
+            products_qs = products_qs.filter(price__gte=int(price_min))
         if price_max != '':
-            products = products.filter(price__lte=int(price_max))
+            products_qs = products_qs.filter(price__lte=int(price_max))
     except ValueError:
         pass
 
+    # 全件数（フィルタ後の総数）
+    total_count = products_qs.count()
+
+    # ページング（10件ごと）
+    paginator = Paginator(products_qs, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    # 現在のクエリ文字列（page を除外）を作る（ページリンクで再利用）
+    qd = request.GET.copy()
+    if 'page' in qd:
+        qd.pop('page')
+    querystring = qd.urlencode()
+
     categories = Category.objects.all()
 
+    # 価格選択肢は既存ロジックを維持（必要なら view 内で作成）
     max_price = Product.objects.aggregate(max=Max('price'))['max'] or 0
     step = 1000
-    # 最大価格に余裕を持たせて選択肢を作る
     max_bucket = ((max_price // step) + 2) * step
     price_options = list(range(0, max_bucket + 1, step))
 
     context = {
-        'products': products,
+        'products': page_obj,      # テンプレでは page_obj をループ代わりに利用可
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'is_paginated': page_obj.has_other_pages(),
+        'total_count': total_count,
         'q': q,
         'categories': categories,
         'price_options': price_options,
         'selected_category': category_id,
         'selected_min': price_min,
         'selected_max': price_max,
+        'querystring': querystring,
     }
     return render(request, 'EC/index.html', context)
 

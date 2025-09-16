@@ -63,7 +63,7 @@
       <a class="btn" href="{% url 'product_create' %}">出品する</a>
     </div>
 
-    <div class="summary">全商品（{{ products.count }} 件）</div>
+    <div class="summary">全商品（{{ total_count }} 件）</div>
 
     <div class="card">
       <table class="product-table" aria-describedby="product-list">
@@ -73,7 +73,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for product in products %}
+          {% for product in page_obj %}
           <tr>
             <td class="img-cell">
               {% if product.photo %}
@@ -94,6 +94,37 @@
         </tbody>
       </table>
     </div>
+
+    <!-- ページャ（最初・前・番号・次・最後） -->
+    {% if is_paginated %}
+    <nav class="pagination" aria-label="ページナビゲーション" style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      {% comment %} 最初へ（現在ページが1でなければ表示） {% endcomment %}
+      {% if page_obj.number != 1 %}
+        <a class="btn ghost" href="?{% if querystring %}{{ querystring }}&{% endif %}page=1">最初</a>
+      {% endif %}
+
+      {% if page_obj.has_previous %}
+        <a class="btn ghost" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">前へ</a>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if num == page_obj.number %}
+          <span style="padding:6px 10px;border-radius:6px;background:#eef2ff;font-weight:600;">{{ num }}</span>
+        {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+          <a class="page" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ num }}" style="padding:6px 10px;border-radius:6px;border:1px solid #e6e9ef;">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <a class="btn ghost" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">次へ</a>
+      {% endif %}
+
+      {% comment %} 最後へ（現在ページが最終でなければ表示） {% endcomment %}
+      {% if page_obj.number != page_obj.paginator.num_pages %}
+        <a class="btn ghost" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.paginator.num_pages }}">最後</a>
+      {% endif %}
+    </nav>
+    {% endif %}
   </div>
 </body>
 </html>
