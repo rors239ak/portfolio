@@ -5,67 +5,123 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>おためしEC</title>
   <style>
-    table.product-table { width:100%; border-collapse:collapse; margin:12px 0; }
-    table.product-table th, table.product-table td { border:1px solid #ddd; padding:8px; vertical-align:middle; }
-    table.product-table th { background:#f7f7f7; text-align:left; }
-    td.img-cell { width:160px; padding:8px; text-align:center; vertical-align:middle; }
-    .thumb { width:160px; height:160px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#fafafa; border-radius:4px; }
-    .thumb img { width:100%; height:100%; object-fit:contain; display:block; }
-    td.desc { text-align:left; }
+    :root{
+      --max-width:1100px;
+      --accent:#5b8def;
+      --muted:#6b7280;
+      --bg:#fbfcff;
+      --card:#ffffff;
+      --radius:10px;
+    }
+    html,body{height:100%;margin:0;background:var(--bg);font-family:Inter, "Noto Sans JP", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+    .wrap{max-width:var(--max-width);margin:28px auto;padding:18px;}
+    header.site-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    .brand{font-size:1.6rem;font-weight:700;color:var(--accent);text-decoration:none}
+    .auth{font-size:0.95rem}
+    .auth form{display:inline}
+
+    .controls{display:flex;gap:12px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+    .search{
+      flex:1; display:flex; gap:8px; align-items:center;
+      background:var(--card); padding:8px;border-radius:8px;border:1px solid #e6e8ee;
+      box-shadow:0 1px 0 rgba(16,24,40,0.02);
+    }
+    .search input[type="text"]{flex:1;border:0;outline:none;padding:8px;font-size:0.95rem;background:transparent}
+    .btn{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+    .btn.ghost{background:transparent;color:var(--accent);border:1px solid #e6e8ee}
+    .link-create{font-size:0.95rem;color:var(--accent);text-decoration:none;padding:8px 12px;border-radius:8px;border:1px solid transparent}
+    .summary{color:var(--muted);font-size:0.95rem;margin-bottom:8px}
+
+    /* テーブルカード */
+    .card{
+      background:var(--card);border-radius:var(--radius);padding:12px;border:1px solid #eef1f6;
+      box-shadow:0 6px 20px rgba(13,30,60,0.04);
+    }
+    table.product-table{width:100%;border-collapse:collapse;font-size:0.95rem}
+    table.product-table thead th{background:#f7f9fc;text-align:left;padding:12px;border-bottom:1px solid #eef1f6;color:#374151}
+    table.product-table td{padding:12px;border-bottom:1px solid #f1f4f8;vertical-align:middle}
+    tr:nth-child(even) td{background:#fbfdff}
+    tr:hover td{background:#f5f8ff}
+
+    td.img-cell{width:160px;padding:8px;text-align:center;vertical-align:middle}
+    .thumb{width:160px;height:160px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:6px;background:#fff;border:1px solid #f0f2f5}
+    .thumb img{width:100%;height:100%;object-fit:contain;display:block}
+
+    td.desc{max-width:420px;color:#374151}
+    td.owner{color:var(--muted);font-size:0.9rem}
+
+    /* レスポンシブ */
+    @media (max-width:900px){
+      .thumb{width:120px;height:120px}
+      td.img-cell{width:120px}
+      td.desc{max-width:220px}
+    }
+    @media (max-width:720px){
+      table.product-table thead{display:none}
+      table.product-table, table.product-table tbody, table.product-table tr, table.product-table td{display:block;width:100%}
+      table.product-table tr{margin-bottom:12px;border-radius:8px}
+      table.product-table td{padding:10px;background:transparent;border-bottom:0}
+      td.img-cell{display:flex;justify-content:center;padding-bottom:6px}
+      td.desc{padding-top:6px}
+    }
   </style>
 </head>
 <body>
-  <a href="{% url 'index' %}"><h1>おためしEC</h1></a>
-  <p>
-    {% if user.is_authenticated %}
-      ようこそ {{ user.username }} さん
-      <form method="post" action="{% url 'logout' %}" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit">ログアウト</button>
+  <div class="wrap">
+    <header class="site-header">
+      <a class="brand" href="{% url 'index' %}">おためしEC</a>
+      <div class="auth">
+        {% if user.is_authenticated %}
+          ようこそ <strong>{{ user.username }}</strong> さん
+          <form method="post" action="{% url 'logout' %}" style="display:inline;margin-left:8px">
+            {% csrf_token %}<button class="btn ghost" type="submit">ログアウト</button>
+          </form>
+        {% else %}
+          <a class="link-create" href="{% url 'login' %}">ログイン</a> <span style="color:var(--muted)">|</span>
+          <a class="link-create" href="{% url 'signup' %}">会員登録</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="controls">
+      <form class="search" method="get" action="">
+        <input type="text" name="q" placeholder="商品名・説明で検索" value="{{ q|default:'' }}">
+        <button class="btn" type="submit">検索</button>
       </form>
-    {% else %}
-      <a href="{% url 'login' %}">ログイン</a> | <a href="{% url 'signup' %}">会員登録</a>
-    {% endif %}
-  </p>
+      <a class="btn" href="{% url 'product_create' %}">出品する</a>
+    </div>
 
-  
-  <p><a href="{% url 'product_create' %}">商品を出品する</a></p>
+    <div class="summary">全商品（{{ products.count }} 件）</div>
 
-  <h3>商品検索</h3>
-  <form method="get" action="">
-    <input type="text" name="q" placeholder="商品名・説明で検索" value="{{ q|default:'' }}">
-    <button type="submit">検索</button>
-  </form>
-
-  <p>全商品（{{ products.count }} 件）</p>
-
-  <table class="product-table" aria-describedby="product-list">
-    <thead>
-      <tr>
-        <th>商品名</th><th>価格</th><th>カテゴリ</th><th>画像</th><th>出品者</th><th>説明</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for product in products %}
-      <tr>
-        <td><strong>{{ product.name }}</strong></td>
-        <td>¥{{ product.price }}</td>
-        <td>{% if product.category %}{{ product.category.name }}{% endif %}</td>
-        <td class="img-cell">
-          {% if product.photo %}
-            <div class="thumb"><img src="{{ product.photo.url }}" alt="{{ product.name }}"></div>
-          {% else %}
-            <div class="thumb" aria-hidden="true"></div>
-          {% endif %}
-        </td>
-        <td>{% if product.owner %}{{ product.owner.username }}{% else %}—{% endif %}</td>
-        <td class="desc">{{ product.description }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="6">商品がありません。</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
+    <div class="card">
+      <table class="product-table" aria-describedby="product-list">
+        <thead>
+          <tr>
+            <th>画像</th><th>商品名</th><th>価格</th><th>商品説明</th><th>カテゴリ</th><th>出品者</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+          <tr>
+            <td class="img-cell">
+              {% if product.photo %}
+                <div class="thumb"><img src="{{ product.photo.url }}" alt="{{ product.name }}"></div>
+              {% else %}
+                <div class="thumb" aria-hidden="true"></div>
+              {% endif %}
+            </td>
+            <td><strong>{{ product.name }}</strong></td>
+            <td>¥{{ product.price }}</td>
+            <td class="desc">{{ product.description }}</td>
+            <td>{% if product.category %}{{ product.category.name }}{% endif %}</td>
+            <td class="owner">{% if product.owner %}{{ product.owner.username }}{% else %}—{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6">商品がありません。</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 </body>
 </html>
