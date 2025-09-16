@@ -40,15 +40,7 @@ class AuthAndViewTests(TestCase):
         resp2 = self.client.get(reverse('index'))
         self.assertNotIn(resp2.status_code, (302,))  # ログイン必須なら 302 にならないこと
 
-    def test_product_list_requires_login(self):
-        # ログインしていないと product_list はログインページへリダイレクト（status 302）
-        resp = self.client.get(reverse('product_list'))
-        self.assertEqual(resp.status_code, 302)
-        # ログイン後は 200
-        self.client.login(username=self.username, password=self.password)
-        resp = self.client.get(reverse('product_list'))
-        self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, 'AAA')
+
 
     def test_index_search_returns_matching(self):
         # テスト用ユーザーでログイン（検索ページはログインが必要な想定）

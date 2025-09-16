@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.db.models import Q
 from .models import Product
-from .forms import ProductForm
+from .forms import ProductForm, SignupForm
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required
@@ -18,11 +18,6 @@ def index(request):
         products = products.filter(Q(name__icontains=q) | Q(description__icontains=q))
     return render(request, 'EC/index.html', {'products': products, 'q': q})
 
-#商品一覧ページ
-@login_required
-def product_list(request):
-    products = Product.objects.all()
-    return render(request, 'EC/product_list.html', {"products": products})
 
 #商品作成ページ
 @login_required
@@ -30,8 +25,11 @@ def create_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            product = form.save()
-            # Ajax 提出（fetch）なら JSON を返す
+            # owner を紐付けて保存
+            product = form.save(commit=False)
+            product.owner = request.user
+            product.save()
+            # Ajax (fetch) の場合は JSON を返す
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': True,
@@ -42,9 +40,9 @@ def create_product(request):
                         'category': product.category.name if product.category else '',
                         'photo_url': product.photo.url if product.photo else '',
                         'description': product.description,
+                        'owner': product.owner.username if product.owner else '',
                     }
                 })
-            # 通常のフォーム送信なら従来どおり遷移先ページを返す
             return render(request, 'EC/product_created.html', {'product': product})
         else:
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -56,12 +54,14 @@ def create_product(request):
 #会員登録ビュー
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = SignupForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save(commit=False)
+            user.email = form.cleaned_data['email']
+            user.save()
             return redirect('login')  # 登録後にログインページへ
     else:
-        form = UserCreationForm()
+        form = SignupForm()
     return render(request, 'EC/signup.html', {'form': form})
 
 # ログインビュー

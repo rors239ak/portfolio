@@ -3,185 +3,111 @@
 <head>
   <meta charset="utf-8">
   <title>商品出品</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      padding: 16px;
+    :root{--max-width:820px;--label-w:120px;--gap:12px}
+    body{font-family: "Noto Sans JP", "Helvetica Neue", Arial, sans-serif; padding:24px; color:#222}
+    .container{max-width:var(--max-width); margin:0 auto}
+    h1{font-size:1.8rem; margin-bottom:16px}
+    form.card{
+      background:#fff; border:1px solid #e6e6e6; padding:18px; border-radius:8px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.04);
+      display:flex; flex-direction:column; gap:var(--gap);
     }
-    .modal {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      max-width: 520px;
-      width: 100%;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-sizing: border-box;
+    .form-row{display:flex; align-items:flex-start; gap:var(--gap)}
+    .form-row label{
+      width:var(--label-w); padding-top:6px; font-weight:600; color:#333;
     }
-    .modal h2 { margin-top: 0; }
-
-    /* 中央揃え強化 */
-    #modal-body {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;     /* 横方向中央揃え */
-      justify-content: center; /* 縦方向の中央寄せ（余白次第で機能） */
-      gap: 8px;
-      text-align: center;      /* テキストを中央揃え */
-      box-sizing: border-box;
-      padding: 8px 0;
+    .control{flex:1}
+    .control input[type="text"],
+    .control input[type="number"],
+    .control textarea,
+    .control select,
+    .control input[type="file"]{
+      width:100%; box-sizing:border-box;
+      padding:8px 10px; border:1px solid #cfcfcf; border-radius:6px;
+      font-size:0.95rem; background:#fff;
     }
-    /* modal-body の直接の子要素を中央に揃え、幅を制限 */
-    #modal-body > * {
-      width: 100%;
-      max-width: 420px;
-      margin-left: auto;
-      margin-right: auto;
-      box-sizing: border-box;
+    .control textarea{min-height:120px; resize:vertical}
+    .help{font-size:0.85rem; color:#666; margin-top:6px}
+    .errors{color:#b00020; font-size:0.9rem; margin-bottom:6px}
+    .actions{display:flex; gap:8px; justify-content:flex-start; margin-top:6px}
+    button.btn{background:#3b82f6;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
+    button.btn.secondary{background:#fff;color:#333;border:1px solid #cfcfcf}
+    /* file input 少し見やすく */
+    .control input[type="file"]{padding:6px}
+    /* レスポンシブ：狭い画面ではラベルを上に */
+    @media (max-width:560px){
+      .form-row{flex-direction:column}
+      .form-row label{width:100%; padding-top:0}
     }
-    /* 画像を中央寄せかつ最大サイズを制限 */
-    #modal-body img {
-      max-width: 240px;
-      width: auto;
-      height: auto;
-      display: block;
-      margin: 0 auto;
-    }
-    .modal-actions {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-    body.modal-open { overflow: hidden; }
   </style>
 </head>
 <body>
-  <h1>商品を出品する</h1>
+  <div class="container">
+    <h1>商品を出品する</h1>
 
-  <div id="form-errors" style="color:red;"></div>
+    <div id="form-errors" class="errors">{{ form.non_field_errors }}</div>
 
-  <form id="product-form" method="post" enctype="multipart/form-data" action="">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">出品</button>
-  </form>
+    <form id="product-form" class="card" method="post" enctype="multipart/form-data" action="">
+      {% csrf_token %}
 
-  <p><a href="{% url 'index' %}">トップへ戻る</a></p>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <!-- モーダル -->
-  <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-hidden="true">
-    <div class="modal" id="created-modal">
-      <h2 id="modal-title">出品が完了しました</h2>
-      <div id="modal-body">
-        <!-- JS で埋める -->
+      <div class="form-row">
+        <label for="{{ form.name.id_for_label }}">Name</label>
+        <div class="control">
+          {{ form.name }}
+          <div class="errors">{{ form.name.errors }}</div>
+        </div>
       </div>
 
-      <div class="modal-actions" role="group" aria-label="作業選択">
-        <button id="modal-new" type="button">別の商品を出品する</button>
-        <button id="modal-list" type="button">商品一覧を見る</button>
-        <button id="modal-home" type="button">トップへ戻る</button>
+      <div class="form-row">
+        <label for="{{ form.category.id_for_label }}">Category</label>
+        <div class="control">
+          {{ form.category }}
+          <div class="errors">{{ form.category.errors }}</div>
+        </div>
       </div>
-    </div>
+
+      <div class="form-row">
+        <label for="{{ form.description.id_for_label }}">Description</label>
+        <div class="control">
+          {{ form.description }}
+          <div class="errors">{{ form.description.errors }}</div>
+          <div class="help">商品の説明を入力してください（任意）</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="{{ form.photo.id_for_label }}">Photo</label>
+        <div class="control">
+          {{ form.photo }}
+          <div class="errors">{{ form.photo.errors }}</div>
+          <div class="help">画像はアップロードしてください（任意）。表示はサムネイル化されます。</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="{{ form.price.id_for_label }}">Price</label>
+        <div class="control">
+          {{ form.price }}
+          <div class="errors">{{ form.price.errors }}</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="{{ form.stock.id_for_label }}">Stock</label>
+        <div class="control">
+          {{ form.stock }}
+          <div class="errors">{{ form.stock.errors }}</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn">出品</button>
+        <a href="{% url 'index' %}" class="btn secondary" style="text-decoration:none;display:inline-flex;align-items:center;padding:8px 10px;border-radius:6px;">トップへ戻る</a>
+      </div>
+    </form>
+
   </div>
-
-  <script>
-    function getCookie(name) {
-      const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-      return v ? v.pop() : '';
-    }
-
-    const form = document.getElementById('product-form');
-    const errorsDiv = document.getElementById('form-errors');
-    const backdrop = document.getElementById('modal-backdrop');
-    const modalBody = document.getElementById('modal-body');
-
-    function openModal(){ backdrop.style.display='flex'; backdrop.setAttribute('aria-hidden','false'); document.body.classList.add('modal-open'); }
-    function closeModal(){ backdrop.style.display='none'; backdrop.setAttribute('aria-hidden','true'); document.body.classList.remove('modal-open'); }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      errorsDiv.textContent = '';
-      const fd = new FormData(form);
-
-      try {
-        const res = await fetch(form.action || window.location.pathname, {
-          method: 'POST',
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRFToken': getCookie('csrftoken'),
-          },
-          body: fd,
-          credentials: 'same-origin',
-        });
-
-        if (!res.ok) {
-          const err = await res.json().catch(()=>null);
-          if (err && err.errors) {
-            let text = '';
-            for (const [field, msgs] of Object.entries(err.errors)) text += field + ': ' + msgs.join(' ') + '\n';
-            errorsDiv.textContent = text;
-          } else errorsDiv.textContent = 'エラーが発生しました。';
-          return;
-        }
-
-        const data = await res.json();
-        if (data.success) {
-          const p = data.product;
-          let html = '';
-          html += `<div><strong style="font-size:1.1em;">${p.name}</strong></div>`;
-          html += `<div>価格: ¥${p.price}</div>`;
-          if (p.category) html += `<div>カテゴリ: ${p.category}</div>`;
-          if (p.photo_url) html += `<div><img src="${p.photo_url}" alt="${p.name}"></div>`;
-          if (p.description) html += `<div style="margin-top:8px;">${p.description}</div>`;
-          modalBody.innerHTML = html;
-          openModal();
-        } else {
-          errorsDiv.textContent = 'エラーが発生しました。';
-        }
-      } catch (err) {
-        errorsDiv.textContent = '通信エラーが発生しました。';
-        console.error(err);
-      }
-    });
-
-    document.getElementById('modal-new').addEventListener('click', ()=>{ closeModal(); form.reset(); });
-    document.getElementById('modal-list').addEventListener('click', ()=>{ location.href = "{% url 'product_list' %}"; });
-    document.getElementById('modal-home').addEventListener('click', ()=>{ location.href = "{% url 'index' %}"; });
-    document.getElementById('modal-close').addEventListener('click', ()=>{ closeModal(); });
-    // 背景クリックで閉じる挙動を無効化（背景クリックでは何もしない）
-    // 代わりに「閉じる」ボタンや Esc キーで閉じます。
-    backdrop.addEventListener('click', (e) => {
-      // 何もしない（背景クリックで閉じたくない場合）
-      // 元に戻したいときは下のコメントを外す：
-      // if (e.target === backdrop) closeModal();
-    });
-    document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape' && backdrop.style.display === 'flex') closeModal(); });
-  </script>
 </body>
 </html>

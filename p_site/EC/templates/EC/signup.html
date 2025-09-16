@@ -3,21 +3,76 @@
 <head>
   <meta charset="utf-8">
   <title>会員登録</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root{--max-width:720px;--gap:12px;--label-w:120px}
+    body{font-family:"Noto Sans JP","Helvetica Neue",Arial,sans-serif;margin:0;padding:24px;background:#fbfbfd;color:#222}
+    .container{max-width:var(--max-width);margin:0 auto;background:#fff;padding:20px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.05)}
+    h1{margin:0 0 16px;font-size:1.6rem}
+    form{display:flex;flex-direction:column;gap:var(--gap)}
+    .form-row{display:flex;gap:var(--gap);align-items:flex-start}
+    .form-row label{width:var(--label-w);padding-top:6px;font-weight:600;color:#333}
+    .control{flex:1}
+    .control input{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #d6d6de;border-radius:6px;background:#fff}
+    .errors{color:#b00020;font-size:0.95rem;margin-bottom:6px}
+    .hint{font-size:0.85rem;color:#666;margin-top:6px}
+    .actions{display:flex;gap:8px;align-items:center;margin-top:8px}
+    .btn{background:#3b82f6;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer}
+    .btn.secondary{background:#fff;color:#333;border:1px solid #d6d6de}
+    @media(max-width:560px){
+      .form-row{flex-direction:column}
+      .form-row label{width:100%;padding-top:0}
+    }
+  </style>
 </head>
 <body>
-  <h1>会員登録</h1>
+  <div class="container">
+    <h1>会員登録</h1>
 
-  {% if form.errors %}
-    <p style="color:red;">入力に問題があります。以下のエラーを確認してください。</p>
-  {% endif %}
+    {% if form.errors %}
+      <div class="errors">入力に問題があります。エラーを確認してください。</div>
+    {% endif %}
 
-  <form method="post" novalidate>
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-    {{ form.as_p }}
-    <button type="submit">登録</button>
-  </form>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="form-row">
+        <label for="{{ form.username.id_for_label }}">ユーザー名</label>
+        <div class="control">
+          {{ form.username }}
+          <div class="errors">{{ form.username.errors }}</div>
+        </div>
+      </div>
 
-  <p><a href="{% url 'login' %}">ログイン</a> | <a href="{% url 'index' %}">トップへ戻る</a></p>
+      <div class="form-row">
+        <label for="{{ form.email.id_for_label }}">メール</label>
+        <div class="control">
+          {{ form.email }}
+          <div class="errors">{{ form.email.errors }}</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="{{ form.password1.id_for_label }}">パスワード</label>
+        <div class="control">
+          {{ form.password1 }}
+          <div class="errors">{{ form.password1.errors }}</div>
+          <div class="hint">英数字を混ぜた8文字以上を推奨します。</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="{{ form.password2.id_for_label }}">確認用パスワード</label>
+        <div class="control">
+          {{ form.password2 }}
+          <div class="errors">{{ form.password2.errors }}</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn">登録</button>
+        <a href="{% url 'login' %}" class="btn secondary" style="text-decoration:none;display:inline-flex;align-items:center;padding:8px 10px;">ログインへ</a>
+      </div>
+    </form>
+  </div>
 </body>
 </html>

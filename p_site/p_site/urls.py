@@ -24,6 +24,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),# 管理ページ
     path('EC/', include('EC.urls')),  # ECアプリのURL
     path("accounts/login/",auth_views.LoginView.as_view(template_name="EC/login.html"),name="login",), # ログイン機能
+    # 明示的に logout を追加（next_page に名前 or URL）
+    path('accounts/logout/', auth_views.LogoutView.as_view(next_page='index'), name='logout'),
+    # Django の認証用 URL (login/logout/password 等) を一括追加
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
 
 if settings.DEBUG:
