@@ -7,6 +7,7 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 from . import views
+from django.http import JsonResponse
 
 #トップページ
 @login_required
@@ -32,9 +33,25 @@ def create_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            product = form.save()  # 保存
-            # 保存後に直接リダイレクトせず、選択画面を表示する
+            product = form.save()
+            # Ajax 提出（fetch）なら JSON を返す
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'product': {
+                        'id': product.id,
+                        'name': product.name,
+                        'price': product.price,
+                        'category': product.category.name if product.category else '',
+                        'photo_url': product.photo.url if product.photo else '',
+                        'description': product.description,
+                    }
+                })
+            # 通常のフォーム送信なら従来どおり遷移先ページを返す
             return render(request, 'EC/product_created.html', {'product': product})
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': form.errors}, status=400)
     else:
         form = ProductForm()
     return render(request, 'EC/product_create.html', {'form': form})

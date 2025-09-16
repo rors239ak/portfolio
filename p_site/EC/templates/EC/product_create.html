@@ -1,13 +1,181 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head><meta charset="utf-8"><title>商品出品</title></head>
+<head>
+  <meta charset="utf-8">
+  <title>商品出品</title>
+  <style>
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 16px;
+    }
+    .modal {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    .modal h2 { margin-top: 0; }
+
+    /* 中央揃え強化 */
+    #modal-body {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;     /* 横方向中央揃え */
+      justify-content: center; /* 縦方向の中央寄せ（余白次第で機能） */
+      gap: 8px;
+      text-align: center;      /* テキストを中央揃え */
+      box-sizing: border-box;
+      padding: 8px 0;
+    }
+    /* modal-body の直接の子要素を中央に揃え、幅を制限 */
+    #modal-body > * {
+      width: 100%;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+      box-sizing: border-box;
+    }
+    /* 画像を中央寄せかつ最大サイズを制限 */
+    #modal-body img {
+      max-width: 240px;
+      width: auto;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    body.modal-open { overflow: hidden; }
+  </style>
+</head>
 <body>
   <h1>商品を出品する</h1>
-  <form method="post" enctype="multipart/form-data">
+
+  <div id="form-errors" style="color:red;"></div>
+
+  <form id="product-form" method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">出品</button>
   </form>
+
   <p><a href="{% url 'index' %}">トップへ戻る</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- モーダル -->
+  <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-hidden="true">
+    <div class="modal" id="created-modal">
+      <h2 id="modal-title">出品が完了しました</h2>
+      <div id="modal-body">
+        <!-- JS で埋める -->
+      </div>
+
+      <div class="modal-actions" role="group" aria-label="作業選択">
+        <button id="modal-new" type="button">別の商品を出品する</button>
+        <button id="modal-list" type="button">商品一覧を見る</button>
+        <button id="modal-home" type="button">トップへ戻る</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function getCookie(name) {
+      const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return v ? v.pop() : '';
+    }
+
+    const form = document.getElementById('product-form');
+    const errorsDiv = document.getElementById('form-errors');
+    const backdrop = document.getElementById('modal-backdrop');
+    const modalBody = document.getElementById('modal-body');
+
+    function openModal(){ backdrop.style.display='flex'; backdrop.setAttribute('aria-hidden','false'); document.body.classList.add('modal-open'); }
+    function closeModal(){ backdrop.style.display='none'; backdrop.setAttribute('aria-hidden','true'); document.body.classList.remove('modal-open'); }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorsDiv.textContent = '';
+      const fd = new FormData(form);
+
+      try {
+        const res = await fetch(form.action || window.location.pathname, {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          body: fd,
+          credentials: 'same-origin',
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(()=>null);
+          if (err && err.errors) {
+            let text = '';
+            for (const [field, msgs] of Object.entries(err.errors)) text += field + ': ' + msgs.join(' ') + '\n';
+            errorsDiv.textContent = text;
+          } else errorsDiv.textContent = 'エラーが発生しました。';
+          return;
+        }
+
+        const data = await res.json();
+        if (data.success) {
+          const p = data.product;
+          let html = '';
+          html += `<div><strong style="font-size:1.1em;">${p.name}</strong></div>`;
+          html += `<div>価格: ¥${p.price}</div>`;
+          if (p.category) html += `<div>カテゴリ: ${p.category}</div>`;
+          if (p.photo_url) html += `<div><img src="${p.photo_url}" alt="${p.name}"></div>`;
+          if (p.description) html += `<div style="margin-top:8px;">${p.description}</div>`;
+          modalBody.innerHTML = html;
+          openModal();
+        } else {
+          errorsDiv.textContent = 'エラーが発生しました。';
+        }
+      } catch (err) {
+        errorsDiv.textContent = '通信エラーが発生しました。';
+        console.error(err);
+      }
+    });
+
+    document.getElementById('modal-new').addEventListener('click', ()=>{ closeModal(); form.reset(); });
+    document.getElementById('modal-list').addEventListener('click', ()=>{ location.href = "{% url 'product_list' %}"; });
+    document.getElementById('modal-home').addEventListener('click', ()=>{ location.href = "{% url 'index' %}"; });
+    document.getElementById('modal-close').addEventListener('click', ()=>{ closeModal(); });
+    backdrop.addEventListener('click', (e)=>{ if (e.target === backdrop) closeModal(); });
+    document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape' && backdrop.style.display === 'flex') closeModal(); });
+  </script>
 </body>
 </html>
