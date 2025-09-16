@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
-from django.db.models import Q
-from .models import Product
+from django.db.models import Q, Max
+from .models import Product, Category
 from .forms import ProductForm, SignupForm
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login as auth_login
@@ -13,10 +13,47 @@ from django.http import JsonResponse
 @login_required
 def index(request):
     q = request.GET.get('q', '').strip()
+    category_id = request.GET.get('category', '').strip()
+    price_min = request.GET.get('price_min', '').strip()
+    price_max = request.GET.get('price_max', '').strip()
+
     products = Product.objects.all().order_by('-created_at')
+
     if q:
         products = products.filter(Q(name__icontains=q) | Q(description__icontains=q))
-    return render(request, 'EC/index.html', {'products': products, 'q': q})
+
+    if category_id:
+        try:
+            products = products.filter(category_id=int(category_id))
+        except ValueError:
+            pass
+
+    try:
+        if price_min != '':
+            products = products.filter(price__gte=int(price_min))
+        if price_max != '':
+            products = products.filter(price__lte=int(price_max))
+    except ValueError:
+        pass
+
+    categories = Category.objects.all()
+
+    max_price = Product.objects.aggregate(max=Max('price'))['max'] or 0
+    step = 1000
+    # 最大価格に余裕を持たせて選択肢を作る
+    max_bucket = ((max_price // step) + 2) * step
+    price_options = list(range(0, max_bucket + 1, step))
+
+    context = {
+        'products': products,
+        'q': q,
+        'categories': categories,
+        'price_options': price_options,
+        'selected_category': category_id,
+        'selected_min': price_min,
+        'selected_max': price_max,
+    }
+    return render(request, 'EC/index.html', context)
 
 
 #商品作成ページ

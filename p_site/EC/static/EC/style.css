@@ -1,126 +1,122 @@
 :root{
   --max-width:1100px;
-  --accent:#5b8def;
+  --accent:#3b82f6;
   --muted:#6b7280;
-  --bg:#fbfcff;
+  --bg:#f6f8fb;
   --card:#ffffff;
+  --line:#eef2f7;
   --radius:10px;
-  --form-max:820px;
-  --label-w:120px;
   --gap:12px;
+  --thumb-size:160px;
 }
-html,body{height:100%;margin:0;background:var(--bg);font-family:Inter, "Noto Sans JP", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
-.wrap{max-width:var(--max-width);margin:28px auto;padding:18px;}
-header.site-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);font-family: "Noto Sans JP", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:#111}
+.wrap{max-width:var(--max-width);margin:28px auto;padding:18px}
+
+/* header */
+header.site-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
 .brand{font-size:1.6rem;font-weight:700;color:var(--accent);text-decoration:none}
-.auth{font-size:0.95rem}
+.auth{font-size:0.95rem;color:var(--muted)}
 .auth form{display:inline}
 
+/* controls / search */
 .controls{display:flex;gap:12px;align-items:center;margin-bottom:18px;flex-wrap:nowrap}
-
-/* 検索フォーム：ボタンを右端に固定 */
 .search{
+  display:flex;
+  align-items:center;
+  gap:8px;
   flex:1;
-  position:relative;       /* ここを基準にボタンを絶対配置 */
-  display:block;           /* 入力が幅100%で伸びるように block にする */
+  position:relative;
   background:var(--card);
   padding:8px;
-  border-radius:8px;
-  border:1px solid #e6e8ee;
-  box-shadow:0 1px 0 rgba(16,24,40,0.02);
+  border-radius:10px;
+  border:1px solid var(--line);
+  min-width:0;
 }
-
-/* テキスト入力は幅100%・右側にボタン領域分の余白を確保 */
 .search input[type="text"]{
   width:100%;
-  padding:8px 100px 8px 8px; /* 右側にボタン分の余白を確保 */
+  box-sizing:border-box;
   border:0;
   outline:none;
+  padding:10px;
   font-size:0.95rem;
   background:transparent;
-  box-sizing:border-box;
+}
+.search select{flex:0 0 auto;border:1px solid #e6e9ef;background:#fff;padding:6px 8px;border-radius:6px;font-size:0.92rem}
+.search .price-range{display:flex;gap:6px;align-items:center}
+.search .btn{flex:0 0 auto;white-space:nowrap;margin-left:6px}
+
+/* 左の入力を可能な限り広げる */
+.search-input{
+  flex:1 1 0%;
+  min-width:0; /* 重要：flex内で縮むために必要 */
 }
 
-/* ボタンを右端に固定 */
-.search .btn{
-  position:absolute;
-  right:8px;
-  top:50%;
-  transform:translateY(-50%);
+/* 右側のコントロール群を右端に追いやる */
+.search-controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
   flex:0 0 auto;
-  white-space:nowrap;
-  padding:8px 12px;
-  z-index:2;
+  margin-left:auto; /* ここで右へ固定 */
 }
 
+/* 各セレクト・ボタンは伸びない */
+.search-controls select,
+.search-controls .price-range,
+.search-controls .btn{
+  flex:0 0 auto;
+}
+
+/* buttons */
 .btn{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
-.btn.ghost{background:transparent;color:var(--accent);border:1px solid #e6e8ee}
-.link-create{font-size:0.95rem;color:var(--accent);text-decoration:none;padding:8px 12px;border-radius:8px;border:1px solid transparent}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid #e6e8ee;padding:7px 10px}
+.link-create{font-size:0.95rem;color:var(--accent);text-decoration:none;padding:8px 12px;border-radius:8px}
+
+/* summary */
 .summary{color:var(--muted);font-size:0.95rem;margin-bottom:8px}
 
-/* テーブルカード */
-.card{
-  background:var(--card);border-radius:var(--radius);padding:12px;border:1px solid #eef1f6;
-  box-shadow:0 6px 20px rgba(13,30,60,0.04);
-}
+/* card + table */
+.card{background:var(--card);border-radius:var(--radius);padding:12px;border:1px solid var(--line);box-shadow:0 6px 18px rgba(11,22,48,0.04)}
 table.product-table{width:100%;border-collapse:collapse;font-size:0.95rem}
-table.product-table thead th{background:#f7f9fc;text-align:left;padding:12px;border-bottom:1px solid #eef1f6;color:#374151}
-table.product-table td{padding:12px;border-bottom:1px solid #f1f4f8;vertical-align:middle}
-tr:nth-child(even) td{background:#fbfdff}
-tr:hover td{background:#f5f8ff}
+.product-table thead th{background:#fbfdff;text-align:left;padding:12px;border-bottom:1px solid var(--line);color:#374151;font-weight:600}
+.product-table td{padding:12px;border-bottom:1px solid #f5f7fb;vertical-align:middle}
+.product-table tr:nth-child(even) td{background:#fbfdff}
+.product-table tr:hover td{background:#f6f9ff}
 
-td.img-cell{width:160px;padding:8px;text-align:center;vertical-align:middle}
-.thumb{width:160px;height:160px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:6px;background:#fff;border:1px solid #f0f2f5}
+/* image cell */
+td.img-cell{width:var(--thumb-size);padding:8px;text-align:center;vertical-align:middle}
+.thumb{width:var(--thumb-size);height:var(--thumb-size);display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:8px;background:#fff;border:1px solid #f0f3f8}
 .thumb img{width:100%;height:100%;object-fit:contain;display:block}
 
-td.desc{max-width:420px;color:#374151}
-td.owner{color:var(--muted);font-size:0.9rem}
+/* text columns */
+td.desc{max-width:420px;color:#374151;white-space:normal;word-break:break-word}
+td.owner{color:var(--muted);font-size:0.92rem}
 
-/* ===== form / page 共通スタイル（login / signup / product_create 用） ===== */
-.container{
-  max-width:var(--form-max);
-  margin:16px auto;
-  padding:18px;
-}
-.card{
-  background:#fff;
-  border:1px solid #e6e6e6;
-  padding:18px;
-  border-radius:8px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.04);
-}
-h1{margin:0 0 12px;font-size:1.6rem;color:#111}
-form{display:flex;flex-direction:column;gap:var(--gap)}
-.form-row{display:flex;gap:var(--gap);align-items:flex-start}
-.form-row label{width:var(--label-w);padding-top:6px;font-weight:600;color:#333}
-.control{flex:1}
-.control input[type="text"], .control input[type="number"], .control input[type="email"], .control input[type="password"], .control textarea, .control select, .control input[type="file"]{
-  width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfcfcf;border-radius:6px;font-size:0.95rem;background:#fff;
-}
-.control textarea{min-height:100px;resize:vertical}
-.errors{color:#b00020;font-size:0.95rem;margin-top:6px}
-.hint{font-size:0.85rem;color:#666;margin-top:6px}
-.actions{display:flex;gap:8px;align-items:center;margin-top:6px}
-.btn{background:#3b82f6;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer}
-.btn.secondary{background:#fff;color:#333;border:1px solid #cfcfcf;padding:8px 12px;border-radius:6px}
+/* responsive: narrow */
 @media (max-width:900px){
-  .thumb{width:120px;height:120px}
-  td.img-cell{width:120px}
+  :root{--thumb-size:120px}
   td.desc{max-width:220px}
 }
+
 @media (max-width:720px){
+  .controls{flex-wrap:wrap}
+  .search{flex-direction:column;align-items:stretch;gap:6px}
+  .search-controls{margin-left:0;justify-content:space-between;width:100%;flex-wrap:wrap}
+  .search-controls .btn{margin-left:0}
+  .search-input input[type="text"]{padding:8px}
+  /* table → card like */
   table.product-table thead{display:none}
   table.product-table, table.product-table tbody, table.product-table tr, table.product-table td{display:block;width:100%}
-  table.product-table tr{margin-bottom:12px;border-radius:8px}
-  table.product-table td{padding:10px;background:transparent;border-bottom:0}
+  table.product-table tr{margin-bottom:12px;border-radius:8px;padding:10px;background:transparent;border:1px solid transparent}
+  table.product-table td{padding:10px;background:var(--card);border-bottom:0}
   td.img-cell{display:flex;justify-content:center;padding-bottom:6px}
   td.desc{padding-top:6px}
-  .controls { flex-wrap: wrap; }
-  .search { display: flex; position: relative; padding-right: 0; }
-  .search input[type="text"]{ padding-right: 8px; flex: 1; }
-  .search .btn{ position: relative; transform: none; right: auto; top: auto; margin-left: 8px; }
+  .card{padding:8px}
 }
-@media (max-width:560px){
-  .form-row{flex-direction:column}
-  .form-row label{width:100%;padding-top:0}
-}
+
+/* small polish */
+a,button{transition:all .12s ease}
+.btn:hover{filter:brightness(.95)}
+.link-create:hover{text-decoration:underline}

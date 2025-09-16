@@ -26,12 +26,40 @@
 
     <div class="controls">
       <form class="search" method="get" action="">
+        <!-- 左側：できるだけ幅を取る入力 -->
         <div class="search-input">
           <input type="text" name="q" placeholder="商品名・説明で検索" value="{{ q|default:'' }}">
         </div>
-        
-        <button class="btn" type="submit">検索</button>
+
+        <!-- 右側：カテゴリ・価格・検索ボタンをまとめる -->
+        <div class="search-controls" aria-hidden="false">
+          <select name="category" aria-label="カテゴリ選択">
+            <option value="">すべてのカテゴリ</option>
+            {% for cat in categories %}
+              <option value="{{ cat.id }}" {% if selected_category|stringformat:"s" == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+
+          <div class="price-range" aria-label="価格範囲">
+            <select name="price_min" aria-label="最低価格">
+              <option value="">下限なし</option>
+              {% for p in price_options %}
+                <option value="{{ p }}" {% if selected_min|stringformat:"s" == p|stringformat:"s" %}selected{% endif %}>¥{{ p }}</option>
+              {% endfor %}
+            </select>
+            <span class="tilde">〜</span>
+            <select name="price_max" aria-label="最高価格">
+              <option value="">上限なし</option>
+              {% for p in price_options %}
+                <option value="{{ p }}" {% if selected_max|stringformat:"s" == p|stringformat:"s" %}selected{% endif %}>¥{{ p }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <button class="btn" type="submit">検索</button>
+        </div>
       </form>
+
       <a class="btn" href="{% url 'product_create' %}">出品する</a>
     </div>
 
