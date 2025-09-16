@@ -100,7 +100,7 @@ def create_product(request):
                         'owner': product.owner.username if product.owner else '',
                     }
                 })
-            return render(request, 'EC/product_created.html', {'product': product})
+            return render(request, 'EC/product_create.html', {'product': product})
         else:
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({'success': False, 'errors': form.errors}, status=400)

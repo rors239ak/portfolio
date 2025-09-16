@@ -150,6 +150,7 @@ a,button{transition:all .12s ease}
   margin: 12px 0;
 }
 
+
 /* ヘッダを中央寄せでアクセントカラーに */
 .auth-page h1{
   text-align: center;
@@ -176,4 +177,60 @@ a,button{transition:all .12s ease}
   .auth-page .card{padding:18px}
   .auth-page .actions{flex-direction:column;gap:8px}
   .auth-page .actions .btn{width:100%;min-width:0}
+}
+
+/* 出品フォーム用の中央揃え・カードレイアウト */
+.form-page{
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 16px;
+  background: linear-gradient(180deg, rgba(59,130,246,0.03), transparent 40%);
+}
+.form-page .container{
+  max-width: 760px;
+  width: 100%;
+  margin: 0;
+  padding: 0 12px;
+}
+.form-page .page-title{
+  text-align: center;
+  color: var(--accent);
+  font-size: 1.5rem;
+  margin: 0 0 14px;
+}
+.form-card{
+  padding: 22px;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(11,22,48,0.06);
+  border: 1px solid rgba(15,23,42,0.04);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ラベル幅を少し広めにしてフォームを整える */
+.form-card .form-row{display:flex;gap:12px;align-items:flex-start}
+.form-card label{width:140px;padding-top:6px;font-weight:600;color:#333}
+.form-card .control{flex:1}
+.form-card .control input[type="text"],
+.form-card .control input[type="number"],
+.form-card .control textarea,
+.form-card .control select,
+.form-card .control input[type="file"]{
+  width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #e6e9ef;border-radius:8px;background:#fff;font-size:0.96rem;
+}
+.form-card .control textarea{min-height:120px;resize:vertical}
+.form-card .hint{color:#6b7280;font-size:0.88rem;margin-top:6px}
+.form-actions{display:flex;gap:12px;justify-content:center;margin-top:6px}
+.form-actions .btn{min-width:120px}
+
+/* レスポンシブ: ラベルを上に */
+@media (max-width:720px){
+  .form-card .form-row{flex-direction:column}
+  .form-card label{width:100%;padding-top:0}
+  .form-actions{flex-direction:column}
+  .form-actions .btn{width:100%}
 }

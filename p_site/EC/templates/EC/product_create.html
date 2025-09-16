@@ -7,17 +7,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="{% static 'EC/style.css' %}">
 </head>
-<body>
+<body class="form-page">
   <div class="container">
-    <h1>商品を出品する</h1>
+    <h1 class="page-title">商品を出品する</h1>
 
     <div id="form-errors" class="errors">{{ form.non_field_errors }}</div>
 
-    <form id="product-form" class="card" method="post" enctype="multipart/form-data" action="">
+    <form id="product-form" class="card form-card" method="post" enctype="multipart/form-data" action="">
       {% csrf_token %}
 
       <div class="form-row">
-        <label for="{{ form.name.id_for_label }}">Name</label>
+        <label for="{{ form.name.id_for_label }}">商品名</label>
         <div class="control">
           {{ form.name }}
           <div class="errors">{{ form.name.errors }}</div>
@@ -25,7 +25,7 @@
       </div>
 
       <div class="form-row">
-        <label for="{{ form.category.id_for_label }}">Category</label>
+        <label for="{{ form.category.id_for_label }}">カテゴリ</label>
         <div class="control">
           {{ form.category }}
           <div class="errors">{{ form.category.errors }}</div>
@@ -33,7 +33,7 @@
       </div>
 
       <div class="form-row">
-        <label for="{{ form.description.id_for_label }}">Description</label>
+        <label for="{{ form.description.id_for_label }}">商品説明</label>
         <div class="control">
           {{ form.description }}
           <div class="errors">{{ form.description.errors }}</div>
@@ -42,16 +42,16 @@
       </div>
 
       <div class="form-row">
-        <label for="{{ form.photo.id_for_label }}">Photo</label>
+        <label for="{{ form.photo.id_for_label }}">画像</label>
         <div class="control">
           {{ form.photo }}
           <div class="errors">{{ form.photo.errors }}</div>
-          <div class="hint">画像はアップロードしてください（任意）。表示はサムネイル化されます。</div>
+          <div class="hint">画像はアップロード（任意）。サムネイル表示されます。</div>
         </div>
       </div>
 
       <div class="form-row">
-        <label for="{{ form.price.id_for_label }}">Price</label>
+        <label for="{{ form.price.id_for_label }}">価格（円）</label>
         <div class="control">
           {{ form.price }}
           <div class="errors">{{ form.price.errors }}</div>
@@ -59,20 +59,100 @@
       </div>
 
       <div class="form-row">
-        <label for="{{ form.stock.id_for_label }}">Stock</label>
+        <label for="{{ form.stock.id_for_label }}">在庫</label>
         <div class="control">
           {{ form.stock }}
           <div class="errors">{{ form.stock.errors }}</div>
         </div>
       </div>
 
-      <div class="actions">
+      <div class="form-actions">
         <button type="submit" class="btn">出品</button>
-        <a href="{% url 'index' %}" class="btn secondary" style="text-decoration:none;display:inline-flex;align-items:center;">トップへ戻る</a>
+        <a href="{% url 'index' %}" class="btn secondary">トップへ戻る</a>
       </div>
     </form>
   </div>
 
+  <!-- 簡易モーダル（末尾に追加） -->
+<style>
+#modal-backdrop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);z-index:2000;padding:16px}
+.modal{background:#fff;padding:18px;border-radius:10px;max-width:520px;width:100%;box-shadow:0 10px 30px rgba(0,0,0,0.15);text-align:center}
+.modal .thumb{width:180px;height:180px;margin:8px auto;overflow:hidden;border-radius:8px}
+.modal .thumb img{width:100%;height:100%;object-fit:cover}
+.modal .actions{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.modal button{padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
+.modal .primary{background:#3b82f6;color:#fff}
+.modal .ghost{background:#fff;border:1px solid #e6e9ef}
+</style>
+
+<div id="modal-backdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <h2 id="modal-title">出品が完了しました</h2>
+    <div id="modal-body"></div>
+    <div class="actions">
+      <button id="modal-new" type="button" class="ghost">別の商品を出品する</button>
+      <button id="modal-home" type="button" class="ghost">トップへ戻る</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  function qs(name){ return document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)')?.pop() || ''; }
+  const form = document.getElementById('product-form');
+  const backdrop = document.getElementById('modal-backdrop');
+  const modalBody = document.getElementById('modal-body');
+
+  function openModal(){ backdrop.style.display='flex'; backdrop.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+  function closeModal(){ backdrop.style.display='none'; backdrop.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+
+  if (form){
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      const fd = new FormData(form);
+      try {
+        const res = await fetch(form.action || window.location.pathname, {
+          method: 'POST',
+          headers: {'X-Requested-With':'XMLHttpRequest','X-CSRFToken': qs('csrftoken')},
+          body: fd,
+          credentials: 'same-origin'
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(()=>null);
+          alert(err?.errors ? JSON.stringify(err.errors) : 'エラーが発生しました');
+          return;
+        }
+        const data = await res.json().catch(()=>null);
+        if (data && data.success){
+          const p = data.product || {};
+          let html = '';
+          if (p.photo_url) html += '<div class="thumb"><img src="'+p.photo_url+'" alt=""></div>';
+          html += '<div><strong style="font-size:1.05em">'+(p.name||'')+'</strong></div>';
+          html += '<div style="margin-top:6px">価格: ¥'+(p.price||'')+'</div>';
+          if (p.category) html += '<div>カテゴリ: '+p.category+'</div>';
+          if (p.description) html += '<div style="margin-top:8px;text-align:center;white-space:pre-wrap;">'+(p.description||'')+'</div>';
+          modalBody.innerHTML = html;
+          openModal();
+        } else {
+          alert('保存に失敗しました');
+        }
+      } catch(err){
+        console.error(err);
+        alert('通信エラーが発生しました');
+      }
+    });
+  }
+
+  document.getElementById('modal-new').addEventListener('click', function(){ closeModal(); if(form) form.reset(); });
+  document.getElementById('modal-home').addEventListener('click', function(){ location.href = "{% url 'index' %}"; });
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  // 背景クリックで閉じない（無効化）
+  backdrop.addEventListener('click', function(e){
+    // 何もしない（背景クリックでモーダルを閉じたくない場合）
+  });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && backdrop.style.display === 'flex') closeModal(); });
+})();
+</script>
   <!-- モーダル等の既存スクリプトはそのまま残してください -->
 </body>
 </html>
