@@ -29,7 +29,7 @@
           カテゴリ: {{ product.category.name }}<br>
         {% endif %}
         {% if product.photo %}
-          <img src="{{ product.photo.url }}" alt="{{ product.name }}" style="max-width:200px; display:block; margin:4px 0;">
+          <div style="text-align: center; width: 160px;"><img src="{{ product.photo.url }}" alt="{{ product.name }}" style="max-width:150px; max-height: 150px; display:inline-block; margin:6px 0;"></div>
         {% endif %}
         <div>{{ product.description }}</div>
       </li>
@@ -39,6 +39,6 @@
   </ul>
 {% endif %}
 
-  <p><a href="{% url 'product_list' %}">商品一覧へ</a></p>
+  <p><a href="{% url 'product_create' %}">商品を出品する</a> | <a href="{% url 'product_list' %}">商品一覧へ</a></p>
 </body>
 </html>

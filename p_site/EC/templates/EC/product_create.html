@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="utf-8"><title>商品出品</title></head>
+<body>
+  <h1>商品を出品する</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">出品</button>
+  </form>
+  <p><a href="{% url 'index' %}">トップへ戻る</a></p>
+</body>
+</html>

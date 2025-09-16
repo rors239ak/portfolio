@@ -3,14 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>title</title>
+  <title>商品一覧 - おためしEC</title>
 </head>
 <body>
   <a href="{% url 'index' %}"><h1>おためしEC</h1></a>
   <h3>商品一覧</h3>
   <ul>
     {% for product in products %}
-      <li>{{ product.name }} - ¥{{ product.price }}</li>
+      <li>
+        <strong>{{ product.name }}</strong> - ¥{{ product.price }}<br>
+        {% if product.category %}
+          カテゴリ: {{ product.category.name }}<br>
+        {% endif %}
+        {% if product.photo %}
+          <div style="text-align: center; width: 160px;"><img src="{{ product.photo.url }}" alt="{{ product.name }}" style="max-width:150px; max-height: 150px; display:inline-block; margin:6px 0;"></div>
+        {% endif %}
+        <div>{{ product.description }}</div>
+      </li>
+    {% empty %}
+      <li>商品がありません。</li>
     {% endfor %}
   </ul>
 </body>
