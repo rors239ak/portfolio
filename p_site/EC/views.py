@@ -32,8 +32,9 @@ def create_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            return redirect('product_list')
+            product = form.save()  # 保存
+            # 保存後に直接リダイレクトせず、選択画面を表示する
+            return render(request, 'EC/product_created.html', {'product': product})
     else:
         form = ProductForm()
     return render(request, 'EC/product_create.html', {'form': form})

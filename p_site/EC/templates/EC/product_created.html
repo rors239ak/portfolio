@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>出品完了</title>
+</head>
+<body>
+  <h1>出品が完了しました</h1>
+
+  <h2>{{ product.name }}</h2>
+  <p>価格: ¥{{ product.price }}</p>
+  {% if product.category %}
+    <p>カテゴリ: {{ product.category.name }}</p>
+  {% endif %}
+  {% if product.photo %}
+    <div><img src="{{ product.photo.url }}" alt="{{ product.name }}" style="max-width:240px;"></div>
+  {% endif %}
+  <p>{{ product.description }}</p>
+
+  <hr>
+  <p>次にどうしますか？</p>
+  <ul>
+    <li><a href="{% url 'product_create' %}">別の商品を出品する</a></li>
+    <li><a href="{% url 'product_list' %}">商品一覧を見る</a></li>
+    <li><a href="{% url 'index' %}">トップページへ戻る</a></li>
+  </ul>
+</body>
+</html>
