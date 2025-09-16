@@ -174,7 +174,13 @@
     document.getElementById('modal-list').addEventListener('click', ()=>{ location.href = "{% url 'product_list' %}"; });
     document.getElementById('modal-home').addEventListener('click', ()=>{ location.href = "{% url 'index' %}"; });
     document.getElementById('modal-close').addEventListener('click', ()=>{ closeModal(); });
-    backdrop.addEventListener('click', (e)=>{ if (e.target === backdrop) closeModal(); });
+    // 背景クリックで閉じる挙動を無効化（背景クリックでは何もしない）
+    // 代わりに「閉じる」ボタンや Esc キーで閉じます。
+    backdrop.addEventListener('click', (e) => {
+      // 何もしない（背景クリックで閉じたくない場合）
+      // 元に戻したいときは下のコメントを外す：
+      // if (e.target === backdrop) closeModal();
+    });
     document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape' && backdrop.style.display === 'flex') closeModal(); });
   </script>
 </body>
