@@ -5,73 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>おためしEC</title>
   <style>
-    table.product-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 12px 0;
-    }
-    table.product-table th,
-    table.product-table td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      vertical-align: middle;
-    }
-    table.product-table th {
-      background:#f7f7f7;
-      text-align: left;
-    }
-    td.img-cell {
-      width: 160px;
-      padding: 8px;
-      text-align: center;
-      vertical-align: middle;
-    }
-    .thumb {
-      width: 160px;
-      height: 160px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      margin: 0 auto;
-      background: #fafafa;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-    .thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-    }
-    td.desc { text-align: left; }
+    table.product-table { width:100%; border-collapse:collapse; margin:12px 0; }
+    table.product-table th, table.product-table td { border:1px solid #ddd; padding:8px; vertical-align:middle; }
+    table.product-table th { background:#f7f7f7; text-align:left; }
+    td.img-cell { width:160px; padding:8px; text-align:center; vertical-align:middle; }
+    .thumb { width:160px; height:160px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#fafafa; border-radius:4px; }
+    .thumb img { width:100%; height:100%; object-fit:contain; display:block; }
+    td.desc { text-align:left; }
   </style>
 </head>
 <body>
   <a href="{% url 'index' %}"><h1>おためしEC</h1></a>
-  <p>
-    <a href="{% url 'login' %}">ログイン</a> |
-    <a href="{% url 'signup' %}">会員登録</a>
-  </p>
+  <p><a href="{% url 'login' %}">ログイン</a> | <a href="{% url 'signup' %}">会員登録</a></p>
 
   <h3>商品検索</h3>
-  <!-- 検索ボックス作成 -->
   <form method="get" action="">
-  <input type="text" name="q" placeholder="商品名・説明で検索" value="{{ q|default:'' }}">
-  <button type="submit">検索</button>
-</form>
-<!-- 該当の検索結果があった場合 -->
-{% if q %}
-  <p>検索: "{{ q }}" — {{ products.count }} 件</p>
+    <input type="text" name="q" placeholder="商品名・説明で検索" value="{{ q|default:'' }}">
+    <button type="submit">検索</button>
+  </form>
 
-  <table class="product-table" aria-describedby="search-results">
+  <p>全商品（{{ products.count }} 件）</p>
+
+  <table class="product-table" aria-describedby="product-list">
     <thead>
       <tr>
-        <th>商品名</th>
-        <th>価格</th>
-        <th>カテゴリ</th>
-        <th>画像</th>
-        <th>説明</th>
+        <th>商品名</th><th>価格</th><th>カテゴリ</th><th>画像</th><th>説明</th>
       </tr>
     </thead>
     <tbody>
@@ -90,14 +48,11 @@
         <td class="desc">{{ product.description }}</td>
       </tr>
       {% empty %}
-      <tr>
-        <td colspan="5">該当する商品はありません。</td>
-      </tr>
+      <tr><td colspan="5">商品がありません。</td></tr>
       {% endfor %}
     </tbody>
   </table>
-{% endif %}
 
-  <p><a href="{% url 'product_create' %}">商品を出品する</a> | <a href="{% url 'product_list' %}">商品一覧へ</a></p>
+  <p><a href="{% url 'product_create' %}">商品を出品する</a></p>
 </body>
 </html>

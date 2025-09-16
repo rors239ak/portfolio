@@ -13,12 +13,9 @@ from django.http import JsonResponse
 @login_required
 def index(request):
     q = request.GET.get('q', '').strip()
+    products = Product.objects.all().order_by('-created_at')
     if q:
-        products = Product.objects.filter(
-            Q(name__icontains=q) | Q(description__icontains=q)
-        )
-    else:
-        products = None
+        products = products.filter(Q(name__icontains=q) | Q(description__icontains=q))
     return render(request, 'EC/index.html', {'products': products, 'q': q})
 
 #商品一覧ページ
