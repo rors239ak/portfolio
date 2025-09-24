@@ -24,75 +24,80 @@
       </div>
     </header>
 
-    <div class="controls">
-      <form class="search" method="get" action="">
-        <!-- 左側：できるだけ幅を取る入力 -->
-        <div class="search-input">
-          <input type="text" name="q" placeholder="商品名・説明で検索" value="{{ q|default:'' }}">
-        </div>
-
-        <!-- 右側：カテゴリ・価格・検索ボタンをまとめる -->
-        <div class="search-controls" aria-hidden="false">
-          <select name="category" aria-label="カテゴリ選択">
-            <option value="">すべてのカテゴリ</option>
-            {% for cat in categories %}
-              <option value="{{ cat.id }}" {% if selected_category|stringformat:"s" == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
-            {% endfor %}
-          </select>
-
-          <div class="price-range" aria-label="価格範囲">
-            <select name="price_min" aria-label="最低価格">
-              <option value="">下限なし</option>
-              {% for p in price_options %}
-                <option value="{{ p }}" {% if selected_min|stringformat:"s" == p|stringformat:"s" %}selected{% endif %}>¥{{ p }}</option>
-              {% endfor %}
-            </select>
-            <span class="tilde">〜</span>
-            <select name="price_max" aria-label="最高価格">
-              <option value="">上限なし</option>
-              {% for p in price_options %}
-                <option value="{{ p }}" {% if selected_max|stringformat:"s" == p|stringformat:"s" %}selected{% endif %}>¥{{ p }}</option>
-              {% endfor %}
-            </select>
+    <!-- controls を上下2行に分ける -->
+    <div class="controls controls-grid">
+      <!-- 上段：検索フォーム（左）と「出品する」ボタン（右） -->
+      <div class="controls-top">
+        <form class="search" method="get" action="">
+          <div class="search-input">
+            <input type="text" name="q" placeholder="商品名・説明で検索" value="{{ q|default:'' }}">
           </div>
+          <div class="search-controls">
+            <select name="category" aria-label="カテゴリ選択">
+              <option value="">すべてのカテゴリ</option>
+              {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if selected_category|stringformat:"s" == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+            <div class="price-range">
+              <select name="price_min"><option value="">下限なし</option>{% for p in price_options %}<option value="{{ p }}" {% if selected_min|stringformat:"s" == p|stringformat:"s" %}selected{% endif %}>¥{{ p }}</option>{% endfor %}</select>
+              <span>〜</span>
+              <select name="price_max"><option value="">上限なし</option>{% for p in price_options %}<option value="{{ p }}" {% if selected_max|stringformat:"s" == p|stringformat:"s" %}selected{% endif %}>¥{{ p }}</option>{% endfor %}</select>
+            </div>
+            <button class="btn" type="submit">検索</button>
+          </div>
+        </form>
 
-          <button class="btn" type="submit">検索</button>
+        <a class="btn" href="{% url 'product_create' %}">出品する</a>
+      </div>
+
+      <!-- 下段：左に補助（例: 絞り表示）、右に並び替え（right-aligned） -->
+      <div class="controls-bottom">
+        <div class="filters-left">
+          <!-- 必要ならここにフィルタの要約や切替ボタンを置けます -->
+          <span class="summary">全商品（{{ total_count }} 件）</span>
         </div>
-      </form>
 
-      <a class="btn" href="{% url 'product_create' %}">出品する</a>
+        <div class="sort-row">
+          <form class="sort-form" method="get" action="">
+            <input type="hidden" name="q" value="{{ q|default:'' }}">
+            <input type="hidden" name="category" value="{{ selected_category|default:'' }}">
+            <input type="hidden" name="price_min" value="{{ selected_min|default:'' }}">
+            <input type="hidden" name="price_max" value="{{ selected_max|default:'' }}">
+            <label for="sort-select" class="sort-label">並び替え</label>
+            <select id="sort-select" name="sort" onchange="this.form.submit()">
+              <option value="newest" {% if sort == 'newest' %}selected{% endif %}>新着順</option>
+              <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>古い順</option>
+              <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>価格の安い順</option>
+              <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>価格の高い順</option>
+              <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>名前昇順</option>
+              <option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>名前降順</option>
+            </select>
+          </form>
+        </div>
+      </div>
     </div>
 
-    <div class="summary">全商品（{{ total_count }} 件）</div>
-
     <div class="card">
-      <table class="product-table" aria-describedby="product-list">
-        <thead>
-          <tr>
-            <th>画像</th><th>商品名</th><th>価格</th><th>商品説明</th><th>カテゴリ</th><th>出品者</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for product in page_obj %}
-          <tr>
-            <td class="img-cell">
-              {% if product.photo %}
-                <div class="thumb"><img src="{{ product.photo.url }}" alt="{{ product.name }}"></div>
-              {% else %}
-                <div class="thumb" aria-hidden="true"></div>
-              {% endif %}
-            </td>
-            <td><strong><a href="{% url 'product_detail' product.pk %}">{{ product.name }}</a></strong></td> <!-- 変更 -->
-            <td>¥{{ product.price }}</td>
-            <td class="desc">{{ product.description }}</td>
-            <td>{% if product.category %}{{ product.category.name }}{% endif %}</td>
-            <td class="owner">{% if product.owner %}{{ product.owner.username }}{% else %}—{% endif %}</td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="6">商品がありません。</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      <div class="product-grid" aria-describedby="product-list">
+        {% for product in page_obj %}
+        <div class="product-item">
+          <a class="thumb" href="{% url 'product_detail' product.pk %}">
+            {% if product.photo %}
+              <img src="{{ product.photo.url }}" alt="{{ product.name }}">
+            {% else %}
+              <div class="thumb-empty" aria-hidden="true"></div>
+            {% endif %}
+          </a>
+          <div class="pi-body">
+            <a class="pi-name" href="{% url 'product_detail' product.pk %}">{{ product.name }}</a>
+            <div class="pi-price">¥{{ product.price }}</div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty">商品がありません。</div>
+        {% endfor %}
+      </div>
     </div>
 
     

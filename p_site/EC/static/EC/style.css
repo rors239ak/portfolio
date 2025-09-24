@@ -8,6 +8,7 @@
   --radius:10px;
   --gap:12px;
   --thumb-size:160px;
+  --controls-h:56px; /* 必要なら調整 */
 }
 
 *{box-sizing:border-box}
@@ -75,7 +76,7 @@ header.site-header{display:flex;align-items:center;justify-content:space-between
 .link-create{font-size:0.95rem;color:var(--accent);text-decoration:none;padding:8px 12px;border-radius:8px}
 
 /* summary */
-.summary{color:var(--muted);font-size:0.95rem;margin-bottom:8px}
+.summary{color:var(--muted);font-size:0.95rem;}
 
 /* card + table */
 .card{background:var(--card);border-radius:var(--radius);padding:12px;border:1px solid var(--line);box-shadow:0 6px 18px rgba(11,22,48,0.04)}
@@ -267,4 +268,133 @@ a,button{transition:all .12s ease}
   .product-page .product-detail { padding:18px; }
 }
 
-/* 依存する既存ルールがあればここで継承する */
+/* index: 商品グリッド（横4列） */
+.product-grid{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 変更: 4列 */
+  gap: 18px;
+  align-items: start;
+}
+.product-item{
+  background: var(--card);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(11,22,48,0.04);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-height: 160px;
+}
+.product-item .thumb{
+  display:block;
+  width:100%;
+  height:140px;
+  overflow:hidden;
+  border-radius:8px;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.product-item .thumb img{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  display:block;
+}
+.pi-body{display:flex;flex-direction:column;align-items:center;gap:6px}
+.pi-name{font-weight:700;color:inherit;text-decoration:none}
+.pi-price{color:var(--muted);font-weight:600}
+
+/* レスポンシブ：幅が狭ければ列数を減らす */
+@media (max-width:1200px){
+  /* 大きめ画面では 3 列に落とす */
+  .product-grid{ grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width:980px){
+  /* 中くらいは 2 列 */
+  .product-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width:560px){
+  /* スマホは 1 列 */
+  .product-grid{ grid-template-columns: repeat(1, 1fr); }
+}
+
+/* sort-row: 並び替えフォームを下段で右寄せ */
+.sort-row{
+  display:flex;
+  justify-content:flex-end; /* 右寄せ */
+  margin:10px 0 6px;        /* controls と summary の間に余白 */
+  gap:8px;
+}
+
+.sort-form{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+
+.sort-form .sort-label{ font-weight:600; color:var(--muted); }
+
+/* controls を上下2行に分ける */
+.controls-grid{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:18px;
+}
+
+/* 上段: 検索（左）と出品ボタン（右）を水平配置 */
+.controls-top{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:space-between;
+}
+
+/* search の内部（既存の .search と .search-controls が使われる想定） */
+.controls-top .search{flex:1; display:flex; gap:8px; align-items:center}
+.controls-top .search .search-input{flex:1}
+.controls-top .search .search-controls{display:flex;align-items:center;gap:8px}
+
+/* 下段: 左にフィルタ要約、右に sort を配置 */
+.controls-bottom{
+  display:flex;
+  align-items:center;
+  justify-content:space-between; /* ← 左右に振り分ける */
+  gap:12px;
+  width: 90%;
+}
+
+/* filters-left は左寄せ、縦中央に */
+.filters-left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--muted);
+  text-align:left;
+  flex: 0 0 auto; /* 幅は内容に合わせる */
+}
+
+/* sort-row を右端に固定 */
+.sort-row{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex: 0 0 auto;
+  margin-left: auto; /* 保険で右に詰める */
+}
+
+/* 両側の要素を同じ高さに見せるためにフォーム内の要素も中央揃え */
+.controls-bottom .sort-form,
+.controls-bottom .filters-left { height: 100%; }
+.controls-bottom .sort-form > * { vertical-align: middle; }
+
+/* モバイルでは中央寄せ */
+@media (max-width:720px){
+  .controls-top{ flex-direction:column; align-items:stretch; min-height: auto }
+  .controls-bottom{ flex-direction:column; align-items:center; gap:6px; min-height: auto }
+  .sort-row{ margin-left:0; justify-content:center }
+}
