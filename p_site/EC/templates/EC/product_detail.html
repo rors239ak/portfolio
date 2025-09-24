@@ -12,8 +12,10 @@
       <a class="back-link" href="{% url 'index' %}">← 一覧に戻る</a>  <!-- 変更: EC: を付与 -->
       <h1 class="product-title">{{ product.name }}</h1>
 
-      {% if product.photo %}
-        <img class="product-image" src="{{ product.photo.url }}" alt="{{ product.name }}">
+      {% if product.images.exists %}
+        <img id="main-image" class="product-image" src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}">
+      {% elif product.photo %}
+        <img id="main-image" class="product-image" src="{{ product.photo.url }}" alt="{{ product.name }}">
       {% endif %}
 
       <div class="product-meta">
@@ -21,6 +23,15 @@
         <p class="stock">在庫: {{ product.stock|default_if_none:"在庫情報なし" }} 件</p> <!-- 追加 -->
         <p class="category">カテゴリ: {% if product.category %}{{ product.category.name }}{% else %}—{% endif %}</p>
         <p class="description">{{ product.description }}</p>
+      </div>
+
+      <!-- サムネイル一覧（クリックで main-image を差し替え） -->
+      <div class="thumbnail-list" aria-hidden="false">
+        {% for img in product.images.all %}
+          <button type="button" class="thumb-btn {% if forloop.first %}active{% endif %}" data-src="{{ img.image.url }}" aria-label="画像 {{ forloop.counter }}">
+            <img class="product-thumb" src="{{ img.image.url }}" alt="{{ product.name }} サムネイル">
+          </button>
+        {% endfor %}
       </div>
 
       <div class="product-actions">
@@ -34,4 +45,5 @@
     </div>
   </div>
 </body>
+<script src="{% static 'EC/product_gallery.js' %}"></script>
 </html>

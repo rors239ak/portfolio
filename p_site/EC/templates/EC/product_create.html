@@ -42,11 +42,10 @@
       </div>
 
       <div class="form-row">
-        <label for="{{ form.photo.id_for_label }}">画像</label>
+        <label>追加画像（最大15枚）</label>
         <div class="control">
-          {{ form.photo }}
-          <div class="errors">{{ form.photo.errors }}</div>
-          <div class="hint">画像はアップロード（任意）。サムネイル表示されます。</div>
+          <input type="file" name="photos" accept="image/*" multiple>
+          <div class="hint">複数の画像を選択してください。アップロードした順で画像が追加され、先頭画像がサムネになります。</div>
         </div>
       </div>
 
@@ -153,6 +152,7 @@
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && backdrop.style.display === 'flex') closeModal(); });
 })();
 </script>
-  <!-- モーダル等の既存スクリプトはそのまま残してください -->
+  <!-- 旧: inline <script>…</script> を削除 -->
+  <script src="{% static 'EC/product_create.js' %}"></script>
 </body>
 </html>
