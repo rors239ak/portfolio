@@ -478,6 +478,26 @@ a,button{transition:all .12s ease}
   border-radius:6px;
 }
 
+/* 既存サムネのチェックボックスがクリックできない問題の修正 */
+.thumb-label{ position:absolute; inset:0; display:block; cursor:pointer; }
+/* 画像自体はクリックでチェックを邪魔しないように pointer-events を無効化 */
+.thumb-label img{ pointer-events:none; display:block; width:100%; height:100%; object-fit:cover; }
+/* チェックボックスを最前面に出して確実にクリック可能にする */
+.thumb-check{
+  position:absolute;
+  top:8px;
+  left:8px;
+  z-index:60;
+  width:22px;
+  height:22px;
+  opacity:1;
+  pointer-events:auto;
+  cursor:pointer;
+}
+
+/* 小さい個別削除ボタンがチェックを遮らないように更に前面へ */
+.existing-thumb .img-delete.small{ z-index:70; }
+
 /* チェックボックスを左上に重ねる */
 .thumb-label{
   position:absolute;

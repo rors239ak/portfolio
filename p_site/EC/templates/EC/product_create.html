@@ -121,64 +121,7 @@
   </div>
 </div>
 
-<script>
-(function(){
-  function qs(name){ return document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)')?.pop() || ''; }
-  const form = document.getElementById('product-form');
-  const backdrop = document.getElementById('modal-backdrop');
-  const modalBody = document.getElementById('modal-body');
-
-  function openModal(){ backdrop.style.display='flex'; backdrop.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
-  function closeModal(){ backdrop.style.display='none'; backdrop.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
-
-  if (form){
-    form.addEventListener('submit', async function(e){
-      e.preventDefault();
-      const fd = new FormData(form);
-      try {
-        const res = await fetch(form.action || window.location.pathname, {
-          method: 'POST',
-          headers: {'X-Requested-With':'XMLHttpRequest','X-CSRFToken': qs('csrftoken')},
-          body: fd,
-          credentials: 'same-origin'
-        });
-        if (!res.ok) {
-          const err = await res.json().catch(()=>null);
-          alert(err?.errors ? JSON.stringify(err.errors) : 'エラーが発生しました');
-          return;
-        }
-        const data = await res.json().catch(()=>null);
-        if (data && data.success){
-          const p = data.product || {};
-          let html = '';
-          if (p.photo_url) html += '<div class="thumb"><img src="'+p.photo_url+'" alt=""></div>';
-          html += '<div><strong style="font-size:1.05em">'+(p.name||'')+'</strong></div>';
-          html += '<div style="margin-top:6px">価格: ¥'+(p.price||'')+'</div>';
-          if (p.category) html += '<div>カテゴリ: '+p.category+'</div>';
-          if (p.description) html += '<div style="margin-top:8px;text-align:center;white-space:pre-wrap;">'+(p.description||'')+'</div>';
-          modalBody.innerHTML = html;
-          openModal();
-        } else {
-          alert('保存に失敗しました');
-        }
-      } catch(err){
-        console.error(err);
-        alert('通信エラーが発生しました');
-      }
-    });
-  }
-
-  document.getElementById('modal-new').addEventListener('click', function(){ closeModal(); if(form) form.reset(); });
-  document.getElementById('modal-home').addEventListener('click', function(){ location.href = "{% url 'index' %}"; });
-  document.getElementById('modal-close').addEventListener('click', closeModal);
-  // 背景クリックで閉じない（無効化）
-  backdrop.addEventListener('click', function(e){
-    // 何もしない（背景クリックでモーダルを閉じたくない場合）
-  });
-  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && backdrop.style.display === 'flex') closeModal(); });
-})();
-</script>
-  <!-- 旧: inline <script>…</script> を削除 -->
+  <!-- 外部 JS を一つだけ読み込む -->
   <script src="{% static 'EC/product_create.js' %}"></script>
-</body>
-</html>
+ </body>
+ </html>

@@ -8,6 +8,8 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 from . import views
+import hashlib
+import time
 from django.http import JsonResponse, HttpResponseForbidden
 from django.db import transaction, IntegrityError
 from django.views.decorators.http import require_POST
@@ -86,11 +88,30 @@ def create_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
+            # セッション重複チェック用 fingerprint を作る
+            name = form.cleaned_data.get('name','') or ''
+            price = str(form.cleaned_data.get('price','') or '')
+            desc = form.cleaned_data.get('description','') or ''
+            photos = request.FILES.getlist('photos')
+            files_sig = '|'.join([f.name for f in photos])
+            fp_src = f"{request.user.pk}|{name}|{price}|{desc}|{files_sig}"
+            fp = hashlib.sha256(fp_src.encode('utf-8')).hexdigest()
+
+            last_fp = request.session.get('last_product_fp')
+            last_time = request.session.get('last_product_time', 0)
+
+            # 10秒以内に同じ内容で再送があれば既存作成扱い（重複防止）
+            if last_fp == fp and time.time() - float(last_time) < 10:
+                existing_pk = request.session.get('last_product_pk')
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': True, 'product': {'id': existing_pk}}, status=200)
+                return redirect('product_detail', pk=existing_pk)
+
+            # 実際の作成処理
             product = form.save(commit=False)
             product.owner = request.user
             product.save()
 
-            photos = request.FILES.getlist('photos')
             errors = []
             for i, f in enumerate(photos[:15]):
                 try:
@@ -104,6 +125,11 @@ def create_product(request):
                 if first and first.image:
                     product.photo = first.image
                     product.save()
+
+            # セッションに保存して短時間の重複を防ぐ
+            request.session['last_product_fp'] = fp
+            request.session['last_product_time'] = str(time.time())
+            request.session['last_product_pk'] = product.pk
 
             # AJAX 応答
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -164,6 +190,25 @@ def edit_product(request, pk):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
+            # セッション重複チェック用 fingerprint（編集用）
+            name = form.cleaned_data.get('name','') or ''
+            price = str(form.cleaned_data.get('price','') or '')
+            desc = form.cleaned_data.get('description','') or ''
+            photos = request.FILES.getlist('photos')
+            files_sig = '|'.join([f.name for f in photos])
+            fp_src = f"edit|{request.user.pk}|{product.pk}|{name}|{price}|{desc}|{files_sig}"
+            fp = hashlib.sha256(fp_src.encode('utf-8')).hexdigest()
+
+            last_fp = request.session.get('last_edit_fp')
+            last_time = request.session.get('last_edit_time', 0)
+
+            # 10秒以内に同じ内容で再送があれば処理スキップ（重複防止）
+            if last_fp == fp and time.time() - float(last_time) < 10:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': True, 'product': {'id': product.pk}}, status=200)
+                return redirect('product_detail', pk=product.pk)
+
+            # 実際の更新処理
             form.save()
             photos = request.FILES.getlist('photos')
             errors = []
@@ -181,6 +226,11 @@ def edit_product(request, pk):
             else:
                 product.photo = None
             product.save()
+
+            # セッションに fingerprint 保存
+            request.session['last_edit_fp'] = fp
+            request.session['last_edit_time'] = str(time.time())
+            request.session.modified = True
 
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 if errors:
