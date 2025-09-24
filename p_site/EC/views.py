@@ -10,6 +10,7 @@ from django.urls import path
 from . import views
 from django.http import JsonResponse, HttpResponseForbidden
 from django.db import transaction, IntegrityError
+from django.views.decorators.http import require_POST
 
 #トップページ
 @login_required
@@ -240,5 +241,88 @@ def delete_product(request, pk):
             })
 
     return render(request, 'EC/product_confirm_delete.html', {'product': product})
+
+@login_required
+@require_POST
+def delete_product_image(request, pk, img_pk):
+    """
+    編集画面からの AJAX POST による画像削除。
+    URL: /EC/product/<pk>/image/<img_pk>/delete/
+    """
+    product = get_object_or_404(Product, pk=pk)
+    if product.owner != request.user:
+        return HttpResponseForbidden()
+
+    img = get_object_or_404(ProductImage, pk=img_pk, product=product)
+    try:
+        # 物理ファイルを安全に削除
+        try:
+            img.image.delete(save=False)
+        except Exception:
+            pass
+        img.delete()
+
+        # 削除後に product.photo を images.first() に再同期（無ければ None）
+        if product.images.exists():
+            first = product.images.first()
+            product.photo = first.image if first and first.image else None
+        else:
+            product.photo = None
+        product.save()
+
+        new_main = product.photo.url if product.photo else ''
+        return JsonResponse({'success': True, 'img_pk': img_pk, 'new_main_url': new_main})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
+@require_POST
+def delete_product_images_bulk(request, pk):
+    """
+    編集画面からの一括削除（AJAX）
+    POST: img_pks[]=1 (複数)
+    """
+    product = get_object_or_404(Product, pk=pk)
+    if product.owner != request.user:
+        return HttpResponseForbidden()
+
+    # リストは POST の複数値または JSON どちらでも受け取る
+    img_pks = request.POST.getlist('img_pks[]') or request.POST.getlist('img_pks') or []
+    # JSON support
+    if not img_pks:
+        try:
+            import json
+            body = json.loads(request.body.decode() or '{}')
+            img_pks = body.get('img_pks', [])
+        except Exception:
+            img_pks = img_pks
+
+    deleted = []
+    errors = []
+    try:
+        with transaction.atomic():
+            for s in img_pks:
+                try:
+                    img = ProductImage.objects.get(pk=int(s), product=product)
+                except ProductImage.DoesNotExist:
+                    continue
+                # delete file
+                try:
+                    img.image.delete(save=False)
+                except Exception:
+                    pass
+                img.delete()
+                deleted.append(img.pk)
+
+            # 同期 main photo
+            if product.images.exists():
+                first = product.images.first()
+                product.photo = first.image if first and first.image else None
+            else:
+                product.photo = None
+            product.save()
+        return JsonResponse({'success': True, 'deleted': deleted, 'new_main_url': product.photo.url if product.photo else ''})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 

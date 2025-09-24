@@ -443,3 +443,126 @@ a,button{transition:all .12s ease}
   border-radius:8px;
   object-fit:contain;
 }
+
+/* 既存画像グリッド（編集画面） */
+.existing-images{
+  display:grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap:12px;
+  align-items:start;
+  max-height: calc(3 * 160px + 2 * 12px); /* 3行分の高さを目安に制限 */
+  overflow:auto;
+  padding:6px;
+  box-sizing:border-box;
+}
+
+.existing-thumb{
+  position:relative;
+  background:var(--card);
+  border-radius:8px;
+  padding:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:160px;
+  overflow:hidden;
+  box-shadow:0 4px 10px rgba(11,22,48,0.04);
+}
+
+/* 画像を中央でトリミング表示 */
+.existing-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  border-radius:6px;
+}
+
+/* チェックボックスを左上に重ねる */
+.thumb-label{
+  position:absolute;
+  inset:0;
+  display:block;
+}
+.thumb-check{
+  position:absolute;
+  top:6px;
+  left:6px;
+  z-index:3;
+  width:20px;
+  height:20px;
+}
+
+/* 個別削除ボタン 小さめ（右下） */
+.existing-thumb .img-delete.small{
+  position:absolute;
+  right:6px;
+  bottom:6px;
+  z-index:4;
+  padding:6px 8px;
+  font-size:0.82rem;
+}
+
+/* 選択時の強調表示 */
+.existing-thumb.selected{
+  box-shadow:0 6px 20px rgba(59,130,246,0.14);
+  transform:translateY(-4px);
+}
+
+/* レスポンシブ：狭い画面では列数を落とす */
+@media (max-width:1200px){ .existing-images{ grid-template-columns: repeat(4, 1fr); } }
+@media (max-width:980px){ .existing-images{ grid-template-columns: repeat(3, 1fr); } }
+@media (max-width:720px){ .existing-images{ grid-template-columns: repeat(2, 1fr); } }
+@media (max-width:420px){ .existing-images{ grid-template-columns: repeat(1, 1fr); } }
+
+/* Form ページの表示崩れ防止（縦中央を解除してスクロール可能に） */
+body.form-page {
+  display: block !important;
+  min-height: 100vh;
+  padding: 24px 0;
+  box-sizing: border-box;
+}
+
+/* コンテナは上寄せして余白を確保 */
+body.form-page .container {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* フォームカードは高さに余裕を持たせて overflow を許容 */
+.form-card {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+/* 既存画像グリッドは高さを制限してスクロール可能に（縦3行まで表示） */
+.existing-images{
+  max-height: calc(3 * 160px + 2 * 12px); /* 3行分 */
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* サムネ／メイン画像が大きくなりすぎないように保険 */
+.existing-thumb img,
+.product-image,
+.thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* モーダル表示中に body の overflow を抑える処理は既存スクリプトに任せるが
+   モーダル非表示時に overflow:hidden が残らないように保険 */
+#modal-backdrop[aria-hidden="true"]{ display:none !important; }
+
+/* レスポンシブ調整：狭い画面での余白確保 */
+@media (max-width:720px){
+  body.form-page .container { padding:16px; }
+  .existing-images{ max-height: calc(3 * 140px + 2 * 10px); gap:8px; }
+}

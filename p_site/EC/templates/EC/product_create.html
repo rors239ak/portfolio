@@ -65,6 +65,32 @@
         </div>
       </div>
 
+      {% if product and product.images.exists %}
+        <div class="form-row">
+          <label>既存画像</label>
+          <div class="control">
+            <div class="existing-controls" style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+              <button type="button" class="btn ghost" id="select-all">全選択</button>
+              <button type="button" class="btn ghost" id="clear-selection">選択解除</button>
+              <button type="button" class="btn" id="bulk-delete" disabled>選択を削除（0）</button>
+              <span class="hint" style="margin-left:8px;color:var(--muted)">複数選択して一括削除できます</span>
+            </div>
+
+            <div class="existing-images" aria-live="polite">
+              {% for img in product.images.all %}
+                <div class="existing-thumb" data-img-pk="{{ img.pk }}">
+                  <label class="thumb-label">
+                    <input type="checkbox" class="thumb-check" value="{{ img.pk }}">
+                    <img src="{{ img.image.url }}" alt="サムネ">
+                  </label>
+                  <button type="button" class="img-delete small" data-url="{% url 'product_image_delete' product.pk img.pk %}" title="個別削除">削除</button>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
       <div class="form-actions">
         <button type="submit" class="btn">出品</button>
         <a href="{% url 'index' %}" class="btn secondary">トップへ戻る</a>
