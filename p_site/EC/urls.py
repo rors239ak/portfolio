@@ -12,4 +12,5 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('product/<int:pk>/image/<int:img_pk>/delete/', views.delete_product_image, name='product_image_delete'),
     path('product/<int:pk>/images/delete/', views.delete_product_images_bulk, name='product_images_delete_bulk'),
+    path('account/', views.account_dashboard, name='account_dashboard'),
 ]

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>マイページ - おためしEC</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'EC/style.css' %}">
+</head>
+<body>
+  <div class="wrap">
+    <h1>マイページ</h1>
+    <p>ようこそ {{ request.user.username }} さん</p>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <a class="btn" href="{% url 'product_create' %}">出品する</a>
+      <a class="btn ghost" href="{% url 'index' %}">トップへ戻る</a>
+    </div>
+
+    <h2>出品中の商品</h2>
+    {% if products %}
+      <div class="grid">
+        {% for p in products %}
+          <div class="card">
+            <a href="{% url 'product_detail' p.pk %}">
+              {% if p.images.exists %}
+                <img src="{{ p.images.all.0.image.url }}" alt="{{ p.name }}">
+              {% elif p.photo %}
+                <img src="{{ p.photo.url }}" alt="{{ p.name }}">
+              {% endif %}
+              <h3>{{ p.name }}</h3>
+            </a>
+            <div class="meta">¥{{ p.price }}</div>
+            <div class="actions">
+              <a href="{% url 'product_edit' p.pk %}">編集</a> |
+              <a href="{% url 'product_delete' p.pk %}">削除</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="pagination">
+        {% if products.has_previous %}<a href="?page={{ products.previous_page_number }}">前へ</a>{% endif %}
+        <span>ページ {{ products.number }} / {{ products.paginator.num_pages }}</span>
+        {% if products.has_next %}<a href="?page={{ products.next_page_number }}">次へ</a>{% endif %}
+      </div>
+    {% else %}
+      <p>出品中の商品はありません。</p>
+    {% endif %}
+  </div>
+</body>
+</html>

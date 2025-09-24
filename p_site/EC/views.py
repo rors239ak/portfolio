@@ -6,6 +6,7 @@ from .forms import ProductForm, SignupForm
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.urls import path
 from . import views
 import hashlib
@@ -374,5 +375,16 @@ def delete_product_images_bulk(request, pk):
         return JsonResponse({'success': True, 'deleted': deleted, 'new_main_url': product.photo.url if product.photo else ''})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
+def account_dashboard(request):
+    """
+    マイページ：ログインユーザーの出品一覧をページネーションで表示
+    """
+    qs = Product.objects.filter(owner=request.user).order_by('-pk')
+    pager = Paginator(qs, 12)
+    page_num = request.GET.get('page', 1)
+    products = pager.get_page(page_num)
+    return render(request, 'EC/account_dashboard.html', {'products': products})
 
 

@@ -1,0 +1,13 @@
+<header class="site-header">
+  <a class="brand" href="{% url 'index' %}">おためしEC</a>
+  <div class="auth">
+    {% if user.is_authenticated %}
+    
+      <a class="btn ghost" href="{% url 'account_dashboard' %}" style="margin-right:8px;vertical-align:middle;">マイページ</a>
+      ようこそ {{ user.username }} さん
+      <a href="{% url 'logout' %}" style="margin-left:8px;">ログアウト</a>
+    {% else %}
+      <a href="{% url 'login' %}">ログイン</a>
+    {% endif %}
+  </div>
+</header>

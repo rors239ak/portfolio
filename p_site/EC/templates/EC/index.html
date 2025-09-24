@@ -12,6 +12,11 @@
     <header class="site-header">
       <a class="brand" href="{% url 'index' %}">おためしEC</a>
       <div class="auth">
+            {% if user.is_authenticated %}
+              <a class="btn" href="{% url 'account_dashboard' %}">マイページ</a>
+            {% else %}
+              <a class="btn" href="{% url 'login' %}">ログイン</a>
+            {% endif %}
         {% if user.is_authenticated %}
           ようこそ <strong>{{ user.username }}</strong> さん
           <form method="post" action="{% url 'logout' %}" style="display:inline;margin-left:8px">
@@ -23,6 +28,8 @@
         {% endif %}
       </div>
     </header>
+
+    
 
     <!-- controls を上下2行に分ける -->
     <div class="controls controls-grid">
