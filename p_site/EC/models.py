@@ -18,7 +18,7 @@ class Product(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='products')
     # price を日本円（整数：円単位）で保存する
     price = models.PositiveIntegerField()  # 例: 1000 = ¥1,000
-    stock = models.IntegerField(default=0)
+    stock = models.IntegerField(default=0, verbose_name='在庫数')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

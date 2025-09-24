@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q, Max
 from django.core.paginator import Paginator
 from .models import Product, Category
@@ -8,7 +8,7 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 from . import views
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 
 #トップページ
 @login_required
@@ -131,5 +131,39 @@ def login(request):
     else:
         form = AuthenticationForm()
     return render(request, 'EC/login.html', {'form': form})
+
+def product_detail(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    return render(request, 'EC/product_detail.html', {'product': product})
+
+@login_required
+def edit_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if product.owner != request.user:
+        return HttpResponseForbidden()
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('index')  # 非名前空間構成と一致させる（プロジェクトに合わせて 'EC:index' に）
+    else:
+        form = ProductForm(instance=product)
+
+    return render(request, 'EC/product_create.html', {'form': form, 'product': product})
+
+
+@login_required
+def delete_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if product.owner != request.user:
+        return HttpResponseForbidden()
+
+    if request.method == 'POST':
+        product.delete()
+        return redirect('index')  # 必要に応じて 'EC:index' に変更
+
+    # 確認ページがあればレンダー（無ければ一覧へリダイレクト）
+    return render(request, 'EC/product_confirm_delete.html', {'product': product})
 
 

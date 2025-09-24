@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>{{ product.name }} - おためしEC</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'EC/style.css' %}">  <!-- 変更: 正しい static パス -->
+</head>
+<body>
+  <div class="wrap product-page">   <!-- 変更: product-page を追加 -->
+    <div class="product-detail">
+      <a class="back-link" href="{% url 'index' %}">← 一覧に戻る</a>  <!-- 変更: EC: を付与 -->
+      <h1 class="product-title">{{ product.name }}</h1>
+
+      {% if product.photo %}
+        <img class="product-image" src="{{ product.photo.url }}" alt="{{ product.name }}">
+      {% endif %}
+
+      <div class="product-meta">
+        <p class="price">価格: ¥{{ product.price }}</p>
+        <p class="stock">在庫: {{ product.stock|default_if_none:"在庫情報なし" }} 件</p> <!-- 追加 -->
+        <p class="category">カテゴリ: {% if product.category %}{{ product.category.name }}{% else %}—{% endif %}</p>
+        <p class="description">{{ product.description }}</p>
+      </div>
+
+      <div class="product-actions">
+        {% if user.is_authenticated and product.owner == user %}
+          <a class="btn" href="{% url 'product_edit' product.pk %}">編集</a>  <!-- 変更 -->
+          <form method="post" action="{% url 'product_delete' product.pk %}" style="display:inline" onsubmit="return confirm('本当に削除しますか？');">  <!-- 変更 -->
+            {% csrf_token %}<button class="btn ghost" type="submit">削除</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

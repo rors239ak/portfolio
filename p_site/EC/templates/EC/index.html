@@ -82,7 +82,7 @@
                 <div class="thumb" aria-hidden="true"></div>
               {% endif %}
             </td>
-            <td><strong>{{ product.name }}</strong></td>
+            <td><strong><a href="{% url 'product_detail' product.pk %}">{{ product.name }}</a></strong></td> <!-- 変更 -->
             <td>¥{{ product.price }}</td>
             <td class="desc">{{ product.description }}</td>
             <td>{% if product.category %}{{ product.category.name }}{% endif %}</td>
