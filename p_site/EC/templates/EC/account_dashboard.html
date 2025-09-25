@@ -95,11 +95,11 @@
 
     <nav class="pagination" style="width:100%;max-width:980px;margin-top:18px;text-align:center">
       {% if products.has_previous %}
-        <a class="btn ghost" href="?page={{ products.previous_page_number }}">前へ</a>
+        <a class="btn ghost" href="?page={{ products.previous_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">前へ</a>
       {% endif %}
       <span style="margin:0 10px">ページ {{ products.number }} / {{ products.paginator.num_pages }}</span>
       {% if products.has_next %}
-        <a class="btn ghost" href="?page={{ products.next_page_number }}">次へ</a>
+        <a class="btn ghost" href="?page={{ products.next_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">次へ</a>
       {% endif %}
     </nav>
   </div>

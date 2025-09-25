@@ -14,6 +14,7 @@ import time
 from django.http import JsonResponse, HttpResponseForbidden
 from django.db import transaction, IntegrityError
 from django.views.decorators.http import require_POST
+from django.utils.http import urlencode
 
 #トップページ
 @login_required
@@ -382,9 +383,32 @@ def account_dashboard(request):
     マイページ：ログインユーザーの出品一覧をページネーションで表示
     """
     qs = Product.objects.filter(owner=request.user).order_by('-pk')
-    pager = Paginator(qs, 12)
-    page_num = request.GET.get('page', 1)
-    products = pager.get_page(page_num)
-    return render(request, 'EC/account_dashboard.html', {'products': products})
+
+    # sort パラメータ処理（テンプレ側の option 値に合わせる）
+    sort = request.GET.get('sort', 'new')
+    order_map = {
+        'new': '-created_at',    # モデルの作成日時フィールド名に合わせて変更
+        'price_asc': 'price',
+        'price_desc': '-price',
+    }
+    if sort in order_map:
+        qs = qs.order_by(order_map[sort])
+
+    # ページネーション（1ページあたりの件数は適宜変更）
+    paginator = Paginator(qs, 12)
+    page_num = request.GET.get('page') or 1
+    products = paginator.get_page(page_num)
+
+    # page を除いた他の GET パラメータをクエリ文字列として保持（ページネーションリンク用）
+    params = request.GET.copy()
+    if 'page' in params:
+        params.pop('page')
+    query_string = params.urlencode()
+
+    context = {
+        'products': products,
+        'query_string': query_string,
+    }
+    return render(request, 'EC/account_dashboard.html', context)
 
 
