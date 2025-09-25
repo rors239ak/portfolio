@@ -271,57 +271,50 @@ a,button{transition:all .12s ease}
 /* index: 商品グリッド（横4列） */
 .product-grid{
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 変更: 4列 */
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* 変更: 4列 */
+  gap: 20px;
   align-items: start;
 }
-.product-item{
+.product-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   background: var(--card);
   border-radius: 10px;
   padding: 12px;
-  text-align: center;
   box-shadow: 0 6px 18px rgba(11,22,48,0.04);
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  min-height: 160px;
-}
-.product-item .thumb{
-  display:block;
-  width:100%;
-  height:140px;
-  overflow:hidden;
-  border-radius:8px;
-  background:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.product-item .thumb img{
-  max-width:100%;
-  max-height:100%;
-  object-fit:contain;
-  display:block;
-}
-.pi-body{display:flex;flex-direction:column;align-items:center;gap:6px}
-.pi-name{font-weight:700;color:inherit;text-decoration:none}
-.pi-price{color:var(--muted);font-weight:600}
-
-/* レスポンシブ：幅が狭ければ列数を減らす */
-@media (max-width:1200px){
-  /* 大きめ画面では 3 列に落とす */
-  .product-grid{ grid-template-columns: repeat(3, 1fr); }
-}
-@media (max-width:980px){
-  /* 中くらいは 2 列 */
-  .product-grid{ grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width:560px){
-  /* スマホは 1 列 */
-  .product-grid{ grid-template-columns: repeat(1, 1fr); }
+  height: 100%;
+  box-sizing: border-box;
 }
 
-/* sort-row: 並び替えフォームを下段で右寄せ */
+/* サムネイル領域を固定高さにしてカード内で一定化 */
+.product-item .thumb { display:block; width:100%; height:140px; overflow:hidden; border-radius:8px; background:#fff; }
+.product-item .thumb img { width:100%; height:100%; object-fit:contain; display:block; }
+
+/* 情報エリアを下に揃えて見た目を揃える */
+.pi-body { display:flex; flex-direction:column; gap:8px; margin-top:10px; flex: 1 0 auto; }
+
+/* 商品名は最大2行に制限して省略（長い名前でも高さ一定） */
+.pi-name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; /* 表示したい行数に変更可 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2em;
+  max-height: calc(1.2em * 2);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* 価格等の位置を固定 */
+.pi-price { margin-top: auto; text-align: center; font-weight: 600; color: var(--muted); }
+
+/* 小画面での調整 */
+@media (max-width:720px){
+  .product-item .thumb { height:120px; }
+  .product-grid { gap:12px; }
+}
 .sort-row{
   display:flex;
   justify-content:flex-end; /* 右寄せ */
