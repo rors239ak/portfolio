@@ -1,0 +1,39 @@
+/* header */
+header.site-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+.brand{font-size:1.6rem;font-weight:700;color:var(--accent);text-decoration:none}
+.auth{font-size:0.95rem;color:var(--muted)}
+.auth form{display:inline}
+
+/* controls / search */
+.controls{display:flex;gap:12px;align-items:center;margin-bottom:18px;flex-wrap:nowrap}
+.search{display:flex;align-items:center;gap:8px;flex:1;position:relative;background:var(--card);padding:8px;border-radius:10px;border:1px solid var(--line);min-width:0}
+.search input[type="text"]{width:100%;box-sizing:border-box;border:0;outline:none;padding:10px;font-size:0.95rem;background:transparent}
+.search select{flex:0 0 auto;border:1px solid #e6e9ef;background:#fff;padding:6px 8px;border-radius:6px;font-size:0.92rem}
+.search .price-range{display:flex;gap:6px;align-items:center}
+.search .btn{flex:0 0 auto;white-space:nowrap;margin-left:6px}
+.search-input{flex:1 1 0%;min-width:0}
+.search-controls{display:flex;gap:8px;align-items:center;flex:0 0 auto;margin-left:auto}
+
+/* buttons */
+.btn{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid #e6e8ee;padding:7px 10px}
+.link-create{font-size:0.95rem;color:var(--accent);text-decoration:none;padding:8px 12px;border-radius:8px}
+.summary{color:var(--muted);font-size:0.95rem}
+
+/* controls-grid / sort-row（index 特有のレイアウト短縮版） */
+.controls-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.controls-top{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.controls-top .search{flex:1;display:flex;gap:8px;align-items:center}
+.controls-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;width:90%}
+.filters-left{display:flex;align-items:center;gap:8px;color:var(--muted);text-align:left;flex:0 0 auto}
+.sort-row{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:0 0 auto;margin-left:auto}
+
+/* responsive */
+@media (max-width:720px){
+  .controls{flex-wrap:wrap}
+  .search{flex-direction:column;align-items:stretch;gap:6px}
+  .search-controls{margin-left:0;justify-content:space-between;width:100%;flex-wrap:wrap}
+  .controls-top{flex-direction:column;align-items:stretch}
+  .controls-bottom{flex-direction:column;align-items:center;gap:6px}
+  .sort-row{margin-left:0;justify-content:center}
+}

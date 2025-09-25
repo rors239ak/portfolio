@@ -1,0 +1,112 @@
+/* ギャラリー：サムネ一覧 */
+.thumbnail-list{display:flex;gap:8px;margin-top:12px;justify-content:center;flex-wrap:wrap}
+.thumb-btn{border:0;background:transparent;padding:0;cursor:pointer;border-radius:6px;overflow:hidden;width:72px;height:72px;display:inline-flex;align-items:center;justify-content:center;transition:box-shadow .12s, transform .12s}
+.thumb-btn img.product-thumb{width:100%;height:100%;object-fit:cover;display:block}
+.thumb-btn.active{box-shadow:0 0 0 3px rgba(59,130,246,0.18);transform:translateY(-3px)}
+.thumb-btn.focus{ outline:2px solid rgba(59,130,246,0.25); }
+
+/* メイン画像 */
+#main-image{max-width:100%;width:auto;max-height:60vh;display:block;margin:12px auto;border-radius:8px;object-fit:contain}
+
+/* 既存画像グリッド（編集画面） */
+.existing-images{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:start;max-height:calc(3 * 160px + 2 * 12px);overflow:auto;padding:6px;box-sizing:border-box}
+.existing-thumb{position:relative;background:var(--card);border-radius:8px;padding:6px;display:flex;align-items:center;justify-content:center;height:160px;overflow:hidden;box-shadow:0 4px 10px rgba(11,22,48,0.04)}
+.existing-thumb img{width:100%;height:100%;object-fit:cover;display:block;border-radius:6px}
+
+/* チェック UI と重なり問題の修正 */
+.thumb-label{position:absolute;inset:0;display:block;cursor:pointer}
+.thumb-label img{pointer-events:none;display:block;width:100%;height:100%;object-fit:cover}
+.thumb-check{position:absolute;top:8px;left:8px;z-index:60;width:22px;height:22px;opacity:1;pointer-events:auto;cursor:pointer}
+.existing-thumb .img-delete.small{z-index:70;position:absolute;right:6px;bottom:6px;padding:6px 8px;font-size:0.82rem}
+.existing-thumb.selected{box-shadow:0 6px 20px rgba(59,130,246,0.14);transform:translateY(-4px)}
+
+/* responsive columns for existing images */
+@media (max-width:1200px){ .existing-images{grid-template-columns:repeat(4,1fr)} }
+@media (max-width:980px){ .existing-images{grid-template-columns:repeat(3,1fr)} }
+@media (max-width:720px){ .existing-images{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:420px){ .existing-images{grid-template-columns:repeat(1,1fr)} }
+
+/* overflow insurance for form page */
+.existing-images{max-height:calc(3 * 160px + 2 * 12px);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.existing-thumb img,.product-image,.thumb img{max-width:100%;max-height:100%;object-fit:cover;display:block}
+#modal-backdrop[aria-hidden="true"]{display:none !important}
+
+/* サムネ：横並びで最大3枚表示、4枚目以降は3枚目に「…」を重ねる */
+.thumbnail-list.small{
+  display:flex;
+  gap:8px;
+  justify-content:flex-start;   /* 改行せず左から並べる（中央揃えだとスクロール時に不自然になるため） */
+  margin-top:10px;
+  flex-wrap:nowrap;      /* 改行させない */
+  align-items:center;
+  min-height:56px;
+  padding-right:8px;    /* 右側にインジケータ用スペースを確保（インジケータ幅分） */
+  position:relative;     /* indicator を絶対配置するため親を相対に */
+  /* 横に長くなったら横スクロールにして改行を防ぐ */
+  overflow-x:auto;
+  overflow-y:visible;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.thumbnail-list.small::-webkit-scrollbar{ height:8px }
+.thumbnail-list.small::-webkit-scrollbar-thumb{ background:rgba(0,0,0,0.06); border-radius:6px }
+
+.thumbnail-list.small .thumb-btn{
+  position:relative;
+  flex:0 0 auto; /* 幅固定で折り返さない */
+  width:56px;
+  height:56px;
+  padding:0;
+  border-radius:6px;
+  overflow:visible;
+  border:1px solid #eef2f7;
+  background:#fff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  z-index:10;
+}
+.thumbnail-list.small .thumb-btn img.product-thumb{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  border-radius:6px;    /* 画像自体は角丸で切る */
+}
+
+/* 空状態は見えないがスペースを保持 */
+.thumbnail-list.small.empty{
+  visibility:hidden;
+  pointer-events:none;
+  opacity:0;
+}
+
+/* indicator を親コンテナの右側に絶対配置（サムネに被らない） */
+.thumbnail-list.small .thumb-more-indicator{
+  position:absolute;
+  right:12px;           /* 親の内側右に収める（padding-right と合わせて被らない） */
+  top:50%;
+  transform:translateY(-50%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(11,22,48,0.6);
+  color:#fff;
+  font-weight:700;
+  font-size:0.95rem;
+  border-radius:6px;
+  padding:6px 10px;
+  pointer-events:none;
+  min-width:28px;
+  height:28px;
+  box-shadow:0 6px 16px rgba(11,22,48,0.12);
+  z-index:20;
+}
+
+/* スマホでのはみ出し量を抑える */
+@media (max-width:720px){
+  .thumbnail-list.small{ padding-right:20px; gap:6px; }
+  .thumbnail-list.small .thumb-btn{ width:48px; height:48px; }
+  .thumbnail-list.small .thumb-btn:last-child{ margin-right:6px; }
+  .thumbnail-list.small .thumb-more-indicator{ right:8px; padding:4px 6px; font-size:0.85rem; height:22px; min-width:22px; }
+}

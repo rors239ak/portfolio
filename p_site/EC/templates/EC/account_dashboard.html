@@ -6,59 +6,102 @@
   {% load static %}
   <link rel="stylesheet" href="{% static 'EC/style.css' %}">
 </head>
-<body>
+<body class="account-page">
   <div class="wrap">
-    <h1>マイページ</h1>
-    <p>ようこそ {{ request.user.username }} さん</p>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <a class="btn" href="{% url 'product_create' %}">出品する</a>
-      <a class="btn ghost" href="{% url 'index' %}">トップへ戻る</a>
-    </div>
+    <header style="width:100%;max-width:980px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <div>
+        <h1 style="margin:0">マイページ</h1>
+        <p style="margin:6px 0 0;color:var(--muted)">ようこそ {{ request.user.username }} さん</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <a class="btn" href="{% url 'product_create' %}">出品する</a>
+        <a class="btn ghost" href="{% url 'index' %}">トップへ戻る</a>
+      </div>
+    </header>
 
-    <h2>出品中の商品</h2>
-    {% if products %}
-      <div class="grid">
+    <section class="controls-grid" style="width:100%;max-width:980px;margin-bottom:14px">
+      <div class="controls-top">
+        <div class="filters-left">
+          <span class="summary">出品中 {{ products.paginator.count }} 件</span>
+        </div>
+        <div class="sort-row">
+          <form method="get" style="display:flex;gap:8px;align-items:center">
+            <label for="sort" style="color:var(--muted)">並び替え</label>
+            <select id="sort" name="sort">
+              <option value="new" {% if request.GET.sort == 'new' %}selected{% endif %}>新着順</option>
+              <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>価格↑</option>
+              <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>価格↓</option>
+            </select>
+            <button class="btn ghost" type="submit">適用</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <main class="grid" role="main" style="width:100%;max-width:980px">
+      {% if products %}
         {% for p in products %}
-          <div class="card product-card" data-product-id="{{ p.pk }}">
-            <a href="{% url 'product_detail' p.pk %}" class="card-link">
+          <article class="product-card" data-product-id="{{ p.pk }}">
+            <a class="card-link" href="{% url 'product_detail' p.pk %}">
               {% if p.images.exists %}
                 <img class="card-main" src="{{ p.images.all.0.image.url }}" alt="{{ p.name }}">
               {% elif p.photo %}
                 <img class="card-main" src="{{ p.photo.url }}" alt="{{ p.name }}">
               {% else %}
-                <div class="card-main placeholder"></div>
+                <div class="card-main" style="background:#fff;display:block;height:180px;border-radius:8px"></div>
               {% endif %}
               <h3>{{ p.name }}</h3>
             </a>
 
-            <!-- サムネイル一覧（クリックで上の .card-main を切替） -->
-            {% if p.images.exists %}
-              <div class="thumbnail-list small" aria-hidden="false">
+            <div class="card-details">
+              {% if p.category %}
+                <div class="card-cat">カテゴリ: {{ p.category.name }}</div>
+              {% endif %}
+              {% if p.description %}
+                <div class="card-desc">{{ p.description|truncatechars:80 }}</div>
+              {% endif %}
+              {% if p.stock is not None %}
+                <div class="card-stock">在庫: {{ p.stock }}</div>
+              {% elif p.inventory is not None %}
+                <div class="card-stock">在庫: {{ p.inventory }}</div>
+              {% endif %}
+            </div>
+
+            <!-- サムネイル一覧：常に出力。最初の3枚だけ描画し、4枚以上なら3枚目に省略インジケータを重ねる -->
+            <div class="thumbnail-list small {% if not p.images.exists %}empty{% endif %}" aria-hidden="{% if not p.images.exists %}true{% else %}false{% endif %}">
+              {% if p.images.exists %}
                 {% for img in p.images.all %}
                   <button type="button" class="thumb-btn" data-src="{{ img.image.url }}" aria-label="画像 {{ forloop.counter }}">
                     <img class="product-thumb" src="{{ img.image.url }}" alt="{{ p.name }} サムネイル">
                   </button>
                 {% endfor %}
-              </div>
-            {% endif %}
+              {% else %}
+                <!-- 空のプレースホルダ（視覚的には隠すが高さは確保）-->
+                <div class="thumb-placeholder" aria-hidden="true"></div>
+              {% endif %}
+            </div>
 
             <div class="meta">¥{{ p.price }}</div>
             <div class="actions">
               <a href="{% url 'product_edit' p.pk %}">編集</a> |
               <a href="{% url 'product_delete' p.pk %}">削除</a>
             </div>
-          </div>
+          </article>
         {% endfor %}
-      </div>
+      {% else %}
+        <p>出品中の商品はありません。</p>
+      {% endif %}
+    </main>
 
-      <div class="pagination">
-        {% if products.has_previous %}<a href="?page={{ products.previous_page_number }}">前へ</a>{% endif %}
-        <span>ページ {{ products.number }} / {{ products.paginator.num_pages }}</span>
-        {% if products.has_next %}<a href="?page={{ products.next_page_number }}">次へ</a>{% endif %}
-      </div>
-    {% else %}
-      <p>出品中の商品はありません。</p>
-    {% endif %}
+    <nav class="pagination" style="width:100%;max-width:980px;margin-top:18px;text-align:center">
+      {% if products.has_previous %}
+        <a class="btn ghost" href="?page={{ products.previous_page_number }}">前へ</a>
+      {% endif %}
+      <span style="margin:0 10px">ページ {{ products.number }} / {{ products.paginator.num_pages }}</span>
+      {% if products.has_next %}
+        <a class="btn ghost" href="?page={{ products.next_page_number }}">次へ</a>
+      {% endif %}
+    </nav>
   </div>
 
   <script src="{% static 'EC/product_gallery.js' %}"></script>

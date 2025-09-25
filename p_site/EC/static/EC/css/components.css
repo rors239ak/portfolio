@@ -1,0 +1,48 @@
+.card{background:var(--card);border-radius:var(--radius);padding:12px;border:1px solid var(--line);box-shadow:0 6px 18px rgba(11,22,48,0.04)}
+table.product-table{width:100%;border-collapse:collapse;font-size:0.95rem}
+.product-table thead th{background:#fbfdff;text-align:left;padding:12px;border-bottom:1px solid var(--line);color:#374151;font-weight:600}
+.product-table td{padding:12px;border-bottom:1px solid #f5f7fb;vertical-align:middle}
+.product-table tr:nth-child(even) td{background:#fbfdff}
+.product-table tr:hover td{background:#f6f9ff}
+
+/* image cell */
+td.img-cell{width:var(--thumb-size);padding:8px;text-align:center;vertical-align:middle}
+.thumb{width:var(--thumb-size);height:var(--thumb-size);display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:8px;background:#fff;border:1px solid #f0f3f8}
+.thumb img{width:100%;height:100%;object-fit:contain;display:block}
+
+/* text columns */
+td.desc{max-width:420px;color:#374151;white-space:normal;word-break:break-word}
+td.owner{color:var(--muted);font-size:0.92rem}
+
+/* index: 商品グリッド（カード共通） */
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px;align-items:start}
+.product-item{display:flex;flex-direction:column;align-items:stretch;background:var(--card);border-radius:10px;padding:12px;box-shadow:0 6px 18px rgba(11,22,48,0.04);height:100%}
+.product-item .thumb{display:block;width:100%;height:140px;overflow:hidden;border-radius:8px;background:#fff}
+.product-item .thumb img{width:100%;height:100%;object-fit:contain;display:block}
+.pi-body{display:flex;flex-direction:column;gap:8px;margin-top:10px;flex:1 0 auto}
+.pi-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;text-overflow:ellipsis;line-height:1.2em;max-height:calc(1.2em*2);font-weight:600;text-align:center}
+.pi-price{margin-top:auto;text-align:center;font-weight:600;color:var(--muted)}
+
+/* 一行で省略：一覧（product-grid）とマイページのみ適用、product_detail に影響しないよう限定 */
+.product-grid .product-item h3,
+.product-grid .product-item .pi-title,
+.product-grid .product-item .pi-name,
+body.account-page .product-card h3,
+body.account-page .card-desc {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+/* もし詳細説明を一覧で一行表示にしたくない場合は .pi-desc-long 等を使って切替可能にする */
+
+/* small polish */
+.btn:hover{filter:brightness(.95)}
+.link-create:hover{text-decoration:underline}
+
+/* responsive small */
+@media (max-width:720px){
+  .product-item .thumb { height:120px; }
+  .product-grid { gap:12px; }
+}
